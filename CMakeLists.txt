@@ -66,6 +66,14 @@ juce_add_plugin(${PROJECT_NAME}
         Resources/Fonts
 )
 
+# This is a VST3-only first release. Do not advertise the VST3 plug-in as a
+# replacement for a previously released VST2 plug-in: no VST2 parameter-ID
+# compatibility contract exists yet. PUBLIC propagates the setting from JUCE's
+# shared-code target to the generated ZalaxyMusic_VST3 wrapper target.
+target_compile_definitions(${PROJECT_NAME} PUBLIC
+    JUCE_VST3_CAN_REPLACE_VST2=0
+)
+
 # Core library
 add_library(zalaxy_core STATIC
     Source/Core/Audio/AudioEngine.cpp
