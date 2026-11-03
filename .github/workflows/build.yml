@@ -68,7 +68,7 @@ jobs:
 
     - name: Build
       shell: pwsh
-      run: cmake --build build --config Release --parallel
+      run: cmake --build build --config Release -- -k 0
 
     - name: Verify VST3 output
       shell: pwsh
@@ -126,7 +126,7 @@ jobs:
 
     - name: Build Tests
       shell: pwsh
-      run: cmake --build build --config Debug --parallel
+      run: cmake --build build --config Debug -- -k 0
 
     - name: Run Tests
       shell: pwsh
