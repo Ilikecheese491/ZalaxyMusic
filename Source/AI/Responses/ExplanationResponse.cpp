@@ -6,7 +6,11 @@ namespace zalaxy
 juce::String ExplanationResponse::getResponse (const juce::var& response)
 {
     if (auto* obj = response.getDynamicObject())
-        return obj->getProperty ("response", "No response generated.");
+    {
+        const auto value = obj->getProperty ("response");
+        return value.isString() ? value.toString() : "No response generated.";
+    }
+
     return "Invalid response format.";
 }
 
