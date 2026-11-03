@@ -9,7 +9,6 @@ LocalAIProvider::~LocalAIProvider() {}
 
 void LocalAIProvider::requestTextToPatch (const juce::String& prompt, std::function<void(const juce::var&)> callback)
 {
-    // Simulate async processing
     juce::Timer::callAfterDelay (500, [callback, this, prompt]()
     {
         callback (createStubPatchResponse (prompt));
@@ -34,11 +33,11 @@ void LocalAIProvider::requestAssistantResponse (const juce::String& question, st
 
 juce::var LocalAIProvider::createStubPatchResponse (const juce::String& prompt)
 {
-    juce::DynamicObject::Ptr obj = new juce::DynamicObject();
+    auto obj = new juce::DynamicObject();
     obj->setProperty ("explanation", "Generated patch based on: " + prompt);
 
     juce::Array<juce::var> params;
-    // Add some default parameter values
+
     struct Param { const char* id; float value; };
     Param defaults[] = {
         {"osc1_waveform", 0.0f}, {"osc1_pitch", 0.5f}, {"osc1_detune", 0.5f}, {"osc1_level", 0.8f},
@@ -51,26 +50,26 @@ juce::var LocalAIProvider::createStubPatchResponse (const juce::String& prompt)
 
     for (auto& p : defaults)
     {
-        juce::DynamicObject::Ptr param = new juce::DynamicObject();
+        auto param = new juce::DynamicObject();
         param->setProperty ("id", p.id);
-        param->setProperty ("value", p.value);
-        params.add (param);
+        param->setProperty ("value", static_cast<double> (p.value));
+        params.add (juce::var (param));
     }
 
     obj->setProperty ("parameters", params);
-    return obj;
+    return juce::var (obj);
 }
 
 juce::var LocalAIProvider::createStubAnalysisResponse()
 {
-    juce::DynamicObject::Ptr obj = new juce::DynamicObject();
+    auto obj = new juce::DynamicObject();
     obj->setProperty ("explanation", "Analyzed reference audio. Generated matching patch.");
-    return createStubPatchResponse ("reference analysis");
+    return juce::var (obj); // or return createStubPatchResponse ("reference analysis");
 }
 
 juce::var LocalAIProvider::createStubAssistantResponse (const juce::String& question)
 {
-    juce::DynamicObject::Ptr obj = new juce::DynamicObject();
+    auto obj = new juce::DynamicObject();
 
     juce::String response;
     if (question.containsIgnoreCase ("mix"))
@@ -85,7 +84,7 @@ juce::var LocalAIProvider::createStubAssistantResponse (const juce::String& ques
         response = "I'm a stub AI. Ask about mixing, mastering, sound design, or arrangement for more specific advice.";
 
     obj->setProperty ("response", response);
-    return obj;
+    return juce::var (obj);
 }
 
 } // namespace zalaxy

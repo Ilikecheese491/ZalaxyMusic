@@ -5,11 +5,11 @@ namespace zalaxy
 
 juce::var TextToPatchRequest::createRequest (const juce::String& prompt)
 {
-    juce::DynamicObject::Ptr obj = new juce::DynamicObject();
+    auto obj = new juce::DynamicObject();
     obj->setProperty ("prompt", prompt);
     obj->setProperty ("max_parameters", 80);
     obj->setProperty ("temperature", 0.7);
-    return obj;
+    return juce::var (obj);
 }
 
 bool TextToPatchRequest::validateResponse (const juce::var& response)
@@ -27,7 +27,9 @@ bool TextToPatchRequest::validateResponse (const juce::var& response)
         auto* p = param.getDynamicObject();
         if (!p->hasProperty ("id") || !p->hasProperty ("value")) return false;
         if (!p->getProperty ("id").isString()) return false;
-        if (!p->getProperty ("value").isNumber()) return false;
+        auto value = p->getProperty ("value");
+        if (! (value.isDouble() || value.isInt() || value.isInt64()))
+            return false;
     }
     return true;
 }
