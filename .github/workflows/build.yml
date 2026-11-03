@@ -61,6 +61,9 @@ jobs:
           -DCMAKE_CXX_COMPILER=cl `
           -DJUCE_DIR="${{ github.workspace }}/JUCE" `
           -DVST3_SDK_PATH="" `
+          --trace-expand `
+          --trace-source="${{ github.workspace }}/CMakeLists.txt" `
+          --trace-source="${{ github.workspace }}/JUCE/extras/Build/CMake/JUCEUtils.cmake" `
           .
 
     - name: Build
@@ -116,6 +119,9 @@ jobs:
           -DCMAKE_CXX_COMPILER=cl `
           -DJUCE_DIR="${{ github.workspace }}/JUCE" `
           -DVST3_SDK_PATH="" `
+          --trace-expand `
+          --trace-source="${{ github.workspace }}/CMakeLists.txt" `
+          --trace-source="${{ github.workspace }}/JUCE/extras/Build/CMake/JUCEUtils.cmake" `
           .
 
     - name: Build Tests
