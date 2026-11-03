@@ -40,7 +40,7 @@ juce::Array<std::pair<juce::String, float>> PatchResponse::getParameters (const 
                         else if (valueVar.isInt())
                             numericValue = static_cast<float> (static_cast<int> (valueVar));
                         else if (valueVar.isInt64())
-                            numericValue = static_cast<float> (static_cast<double> (static_cast<int64> (valueVar)));
+                            numericValue = static_cast<float> (static_cast<double> (static_cast<int64_t> (valueVar)));
                         else
                             continue;
 
