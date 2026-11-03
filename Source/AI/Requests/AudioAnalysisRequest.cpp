@@ -1,17 +1,19 @@
 #include "AudioAnalysisRequest.h"
+#include "TextToPatchRequest.h"
 
 namespace zalaxy
 {
 
 juce::var AudioAnalysisRequest::createRequest (const juce::File& wavFile, double startTime, double endTime)
 {
-    juce::DynamicObject::Ptr obj = new juce::DynamicObject();
+    auto obj = new juce::DynamicObject();
     obj->setProperty ("file_path", wavFile.getFullPathName());
     obj->setProperty ("start_time", startTime);
     obj->setProperty ("end_time", endTime);
     obj->setProperty ("sample_rate", 44100);
     obj->setProperty ("channels", 2);
-    return obj;
+
+    return juce::var (obj);
 }
 
 bool AudioAnalysisRequest::validateResponse (const juce::var& response)

@@ -32,8 +32,19 @@ juce::Array<std::pair<juce::String, float>> PatchResponse::getParameters (const 
                     if (idVar.isString())
                     {
                         juce::String id = idVar.toString();
-                        float value = static_cast<float> (valueVar.getDouble());
-                        result.add ({ id, value });
+
+                        float numericValue = 0.0f;
+
+                        if (valueVar.isDouble())
+                            numericValue = static_cast<float> (static_cast<double> (valueVar));
+                        else if (valueVar.isInt())
+                            numericValue = static_cast<float> (static_cast<int> (valueVar));
+                        else if (valueVar.isInt64())
+                            numericValue = static_cast<float> (static_cast<double> (static_cast<int64> (valueVar)));
+                        else
+                            continue;
+
+                        result.add ({ id, numericValue });
                     }
                 }
             }
