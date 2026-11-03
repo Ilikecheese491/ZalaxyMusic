@@ -71,17 +71,17 @@ void UsageTracker::checkThresholds()
 
 void UsageTracker::save()
 {
-    juce::DynamicObject::Ptr obj = new juce::DynamicObject();
+    juce::var obj = new juce::DynamicObject();
     obj->setProperty ("totalTokensUsed", totalTokensUsed);
     obj->setProperty ("promptTokensUsed", promptTokensUsed);
     obj->setProperty ("completionTokensUsed", completionTokensUsed);
     obj->setProperty ("estimatedCost", estimatedCost);
     obj->setProperty ("monthlyTokenLimit", monthlyTokenLimit);
 
-    juce::DynamicObject::Ptr breakdownObj = new juce::DynamicObject();
+    juce::var breakdownObj = new juce::DynamicObject();
     for (auto& [provider, usage] : providerBreakdown)
     {
-        juce::DynamicObject::Ptr providerObj = new juce::DynamicObject();
+        juce::var providerObj = new juce::DynamicObject();
         providerObj->setProperty ("promptTokens", usage.promptTokens);
         providerObj->setProperty ("completionTokens", usage.completionTokens);
         providerObj->setProperty ("cost", usage.cost);
@@ -94,7 +94,7 @@ void UsageTracker::save()
     juce::FileOutputStream stream (file);
     if (stream.openedOk())
     {
-        juce::JSON::writeToStream (stream, obj);
+        juce::JSON::writeToStream (stream, obj, false, 0);
     }
 }
 
@@ -112,24 +112,42 @@ void UsageTracker::load()
     if (!obj)
         return;
 
-    totalTokensUsed = obj->getProperty ("totalTokensUsed", 0);
-    promptTokensUsed = obj->getProperty ("promptTokensUsed", 0);
-    completionTokensUsed = obj->getProperty ("completionTokensUsed", 0);
-    estimatedCost = obj->getProperty ("estimatedCost", 0.0);
-    monthlyTokenLimit = obj->getProperty ("monthlyTokenLimit", 1000000);
+    auto getInt = [&] (const juce::String& key, int defaultVal) -> int {
+        auto v = obj->getProperty (key);
+        return v.isVoid() ? defaultVal : (int)v;
+    };
+    auto getDouble = [&] (const juce::String& key, double defaultVal) -> double {
+        auto v = obj->getProperty (key);
+        return v.isVoid() ? defaultVal : (double)v;
+    };
+
+    totalTokensUsed = getInt ("totalTokensUsed", 0);
+    promptTokensUsed = getInt ("promptTokensUsed", 0);
+    completionTokensUsed = getInt ("completionTokensUsed", 0);
+    estimatedCost = getDouble ("estimatedCost", 0.0);
+    monthlyTokenLimit = getInt ("monthlyTokenLimit", 1000000);
 
     if (auto* breakdownObj = obj->getProperty ("providerBreakdown").getDynamicObject())
     {
+        auto getIntFromObj = [&] (juce::DynamicObject* o, const juce::String& key, int defaultVal) -> int {
+            auto v = o->getProperty (key);
+            return v.isVoid() ? defaultVal : (int)v;
+        };
+        auto getDoubleFromObj = [&] (juce::DynamicObject* o, const juce::String& key, double defaultVal) -> double {
+            auto v = o->getProperty (key);
+            return v.isVoid() ? defaultVal : (double)v;
+        };
+
         for (auto& prop : breakdownObj->getProperties())
         {
             auto* usageObj = prop.value.getDynamicObject();
             if (usageObj)
             {
                 ProviderUsage usage;
-                usage.promptTokens = usageObj->getProperty ("promptTokens", 0);
-                usage.completionTokens = usageObj->getProperty ("completionTokens", 0);
-                usage.cost = usageObj->getProperty ("cost", 0.0);
-                providerBreakdown[prop.key.toString()] = usage;
+                usage.promptTokens = getIntFromObj (usageObj, "promptTokens", 0);
+                usage.completionTokens = getIntFromObj (usageObj, "completionTokens", 0);
+                usage.cost = getDoubleFromObj (usageObj, "cost", 0.0);
+                providerBreakdown[prop.name.toString()] = usage;
             }
         }
     }
