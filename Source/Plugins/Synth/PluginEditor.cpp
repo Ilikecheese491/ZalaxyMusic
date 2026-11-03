@@ -59,7 +59,7 @@ PluginEditor::PluginEditor (PluginProcessor& p)
     assistantPanel = std::make_unique<AssistantPanel> (processor.getAIProvider(), processor.getParameterManager());
 
     // Create Settings and About panels
-    settingsPanel = std::make_unique<SettingsPanel> (processor.getAIProvider(), processor.getSubscriptionManager());
+    settingsPanel = std::make_unique<SettingsPanel> (processor.getCloudAIProvider(), processor.getSubscriptionManager());
 
     aboutPanel = std::make_unique<AboutPanel>();
 
