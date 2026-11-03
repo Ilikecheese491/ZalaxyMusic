@@ -35,15 +35,17 @@ jobs:
       with:
         cmake-version: '3.28'
 
-    - name: Check Ninja availability
+    - name: Check build tools
       run: |
         ninja --version
         cmake --version
+        # Verify MSVC is available
+        & "${env:VCToolsInstallDir}bin\Hostx64\x64\cl.exe" 2>&1 | Select-String "Version"
       shell: pwsh
 
-    - name: Configure CMake
+    - name: Configure CMake (MSVC)
       run: |
-        cmake -B build -G Ninja `
+        cmake -B build -G "Visual Studio 17 2022" -A x64 `
           -DCMAKE_BUILD_TYPE=Release `
           -DJUCE_DIR="${{ github.workspace }}/JUCE" `
           -DVST3_SDK_PATH="" `
@@ -56,8 +58,9 @@ jobs:
 
     - name: Verify VST3 output
       run: |
-        if (Test-Path "build/bin/ZalaxyMusic.vst3/Contents/x86_64-win/ZalaxyMusic.vst3") {
-          Write-Host "VST3 built successfully!"
+        $vst3Path = "build/bin/Release/ZalaxyMusic.vst3/Contents/x86_64-win/ZalaxyMusic.vst3"
+        if (Test-Path $vst3Path) {
+          Write-Host "VST3 built successfully at $vst3Path!"
         } else {
           Write-Host "VST3 not found at expected location"
           Get-ChildItem -Recurse build/bin
@@ -69,7 +72,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: ZalaxyMusic-Windows-VST3
-        path: build/bin/ZalaxyMusic.vst3/
+        path: build/bin/Release/ZalaxyMusic.vst3/
         retention-days: 30
 
   build-test:
@@ -88,9 +91,9 @@ jobs:
       with:
         cmake-version: '3.28'
 
-    - name: Configure CMake with Tests
+    - name: Configure CMake with Tests (MSVC)
       run: |
-        cmake -B build -G Ninja `
+        cmake -B build -G "Visual Studio 17 2022" -A x64 `
           -DCMAKE_BUILD_TYPE=Debug `
           -DJUCE_DIR="${{ github.workspace }}/JUCE" `
           -DVST3_SDK_PATH="" `
