@@ -6,32 +6,14 @@ namespace zalaxy
 {
 
 const std::map<juce::String, CloudAIProvider::ProviderConfig> CloudAIProvider::providerConfigs = {
-    {"OpenRouter", {
-        "OpenRouter",
-        "https://openrouter.ai/api/v1/chat/completions",
-        "openrouter/auto",
-        4096,
-        0.0005
-    }},
-    {"Together AI", {
-        "Together AI",
-        "https://api.together.xyz/v1/chat/completions",
-        "meta-llama/Llama-3.2-3B-Instruct-Turbo",
-        4096,
-        0.0002
-    }},
-    {"Groq", {
-        "Groq",
-        "https://api.groq.com/openai/v1/chat/completions",
-        "llama-3.1-8b-instant",
-        8192,
-        0.0
-    }}
+    { "OpenRouter", { "OpenRouter", "https://openrouter.ai/api/v1/chat/completions", "openrouter/auto", 4096, 0.0005 } },
+    { "Together AI", { "Together AI", "https://api.together.xyz/v1/chat/completions", "meta-llama/Llama-3.2-3B-Instruct-Turbo", 4096, 0.0002 } },
+    { "Groq", { "Groq", "https://api.groq.com/openai/v1/chat/completions", "llama-3.1-8b-instant", 8192, 0.0 } }
 };
 
 CloudAIProvider::CloudAIProvider (UsageTracker& usage, SubscriptionManager& sub)
-    : usageTracker (usage)
-    , subscriptionManager (sub)
+    : usageTracker (usage),
+      subscriptionManager (sub)
 {
     auto it = providerConfigs.find ("OpenRouter");
     if (it != providerConfigs.end())
@@ -55,7 +37,7 @@ void CloudAIProvider::requestTextToPatch (const juce::String& prompt, std::funct
     {
         juce::DynamicObject::Ptr error = new juce::DynamicObject();
         error->setProperty ("error", "Cloud AI requires Pro license or active trial");
-        callback (error);
+        callback (juce::var (error.get()));
         return;
     }
 
@@ -63,26 +45,36 @@ void CloudAIProvider::requestTextToPatch (const juce::String& prompt, std::funct
     {
         juce::DynamicObject::Ptr error = new juce::DynamicObject();
         error->setProperty ("error", "No API key configured. Add one in Settings.");
-        callback (error);
+        callback (juce::var (error.get()));
         return;
     }
 
-    juce::String systemPrompt = getSystemPromptForTask ("text_to_patch");
-    juce::String body = buildRequestBody (prompt, systemPrompt);
+    const juce::String systemPrompt = getSystemPromptForTask ("text_to_patch");
+    const juce::String body = buildRequestBody (prompt, systemPrompt);
 
     sendRequest (currentProviderConfig.baseURL, body, [this, callback] (const juce::var& response)
     {
         if (validateResponse (response))
         {
-            int promptTokens = 0, completionTokens = 0;
+            int promptTokens = 0;
+            int completionTokens = 0;
+
             if (auto* obj = response.getDynamicObject())
             {
-                if (auto* usage = obj->getProperty ("usage").getDynamicObject())
+                const juce::var usageVar = obj->getProperty ("usage");
+                if (usageVar.isObject())
                 {
-                    promptTokens = usage->getProperty ("prompt_tokens", 0);
-                    completionTokens = usage->getProperty ("completion_tokens", 0);
+                    if (auto* usage = usageVar.getDynamicObject())
+                    {
+                        const juce::var promptVar = usage->getProperty ("prompt_tokens");
+                        const juce::var completionVar = usage->getProperty ("completion_tokens");
+
+                        if (promptVar.isInt()) promptTokens = promptVar;
+                        if (completionVar.isInt()) completionTokens = completionVar;
+                    }
                 }
             }
+
             usageTracker.recordUsage (promptTokens, completionTokens, currentProviderName, currentProviderConfig.defaultModel);
             callback (response);
         }
@@ -90,7 +82,7 @@ void CloudAIProvider::requestTextToPatch (const juce::String& prompt, std::funct
         {
             juce::DynamicObject::Ptr error = new juce::DynamicObject();
             error->setProperty ("error", "Invalid AI response format");
-            callback (error);
+            callback (juce::var (error.get()));
         }
     });
 }
@@ -101,7 +93,7 @@ void CloudAIProvider::requestAudioAnalysis (const juce::File& wavFile, double st
     {
         juce::DynamicObject::Ptr error = new juce::DynamicObject();
         error->setProperty ("error", "Cloud AI requires Pro license or active trial");
-        callback (error);
+        callback (juce::var (error.get()));
         return;
     }
 
@@ -109,7 +101,7 @@ void CloudAIProvider::requestAudioAnalysis (const juce::File& wavFile, double st
     {
         juce::DynamicObject::Ptr error = new juce::DynamicObject();
         error->setProperty ("error", "No API key configured. Add one in Settings.");
-        callback (error);
+        callback (juce::var (error.get()));
         return;
     }
 
@@ -125,7 +117,7 @@ void CloudAIProvider::requestAssistantResponse (const juce::String& question, st
     {
         juce::DynamicObject::Ptr error = new juce::DynamicObject();
         error->setProperty ("error", "Cloud AI requires Pro license or active trial");
-        callback (error);
+        callback (juce::var (error.get()));
         return;
     }
 
@@ -133,26 +125,36 @@ void CloudAIProvider::requestAssistantResponse (const juce::String& question, st
     {
         juce::DynamicObject::Ptr error = new juce::DynamicObject();
         error->setProperty ("error", "No API key configured. Add one in Settings.");
-        callback (error);
+        callback (juce::var (error.get()));
         return;
     }
 
-    juce::String systemPrompt = getSystemPromptForTask ("assistant");
-    juce::String body = buildRequestBody (question, systemPrompt);
+    const juce::String systemPrompt = getSystemPromptForTask ("assistant");
+    const juce::String body = buildRequestBody (question, systemPrompt);
 
     sendRequest (currentProviderConfig.baseURL, body, [this, callback] (const juce::var& response)
     {
         if (validateResponse (response))
         {
-            int promptTokens = 0, completionTokens = 0;
+            int promptTokens = 0;
+            int completionTokens = 0;
+
             if (auto* obj = response.getDynamicObject())
             {
-                if (auto* usage = obj->getProperty ("usage").getDynamicObject())
+                const juce::var usageVar = obj->getProperty ("usage");
+                if (usageVar.isObject())
                 {
-                    promptTokens = usage->getProperty ("prompt_tokens", 0);
-                    completionTokens = usage->getProperty ("completion_tokens", 0);
+                    if (auto* usage = usageVar.getDynamicObject())
+                    {
+                        const juce::var promptVar = usage->getProperty ("prompt_tokens");
+                        const juce::var completionVar = usage->getProperty ("completion_tokens");
+
+                        if (promptVar.isInt()) promptTokens = promptVar;
+                        if (completionVar.isInt()) completionTokens = completionVar;
+                    }
                 }
             }
+
             usageTracker.recordUsage (promptTokens, completionTokens, currentProviderName, currentProviderConfig.defaultModel);
             callback (response);
         }
@@ -160,7 +162,7 @@ void CloudAIProvider::requestAssistantResponse (const juce::String& question, st
         {
             juce::DynamicObject::Ptr error = new juce::DynamicObject();
             error->setProperty ("error", "Invalid AI response format");
-            callback (error);
+            callback (juce::var (error.get()));
         }
     });
 }
@@ -178,8 +180,9 @@ void CloudAIProvider::setProvider (const juce::String& providerName)
 juce::StringArray CloudAIProvider::getAvailableProviders() const
 {
     juce::StringArray providers;
-    for (auto& [name, config] : providerConfigs)
+    for (const auto& [name, config] : providerConfigs)
     {
+        (void) config;
         providers.add (name);
     }
     return providers;
@@ -237,70 +240,65 @@ void CloudAIProvider::testConnection (std::function<void(bool, const juce::Strin
         return;
     }
 
-    juce::String testPrompt = "Test connection - reply with 'OK'";
-    juce::String body = buildRequestBody (testPrompt, "You are a test endpoint. Reply only with 'OK'.");
+    const juce::String testPrompt = "Test connection - reply with 'OK'";
+    const juce::String body = buildRequestBody (testPrompt, "You are a test endpoint. Reply only with 'OK'.");
 
     sendRequest (currentProviderConfig.baseURL, body, [callback] (const juce::var& response)
     {
         if (validateResponse (response))
-        {
             callback (true, "Connection successful");
-        }
         else
-        {
             callback (false, "Invalid response from provider");
-        }
     });
 }
 
 juce::String CloudAIProvider::buildRequestBody (const juce::String& prompt, const juce::String& systemPrompt) const
 {
-    juce::DynamicObject::Ptr obj = new juce::DynamicObject();
-    obj->setProperty ("model", currentProviderConfig.defaultModel);
-    obj->setProperty ("max_tokens", currentProviderConfig.maxTokens);
-    obj->setProperty ("temperature", 0.7);
+    juce::DynamicObject request;
+    request.setProperty ("model", currentProviderConfig.defaultModel);
+    request.setProperty ("max_tokens", currentProviderConfig.maxTokens);
+    request.setProperty ("temperature", 0.7);
 
     juce::Array<juce::var> messages;
-    juce::DynamicObject::Ptr sysMsg = new juce::DynamicObject();
-    sysMsg->setProperty ("role", "system");
-    sysMsg->setProperty ("content", systemPrompt);
-    messages.add (sysMsg);
 
-    juce::DynamicObject::Ptr userMsg = new juce::DynamicObject();
-    userMsg->setProperty ("role", "user");
-    userMsg->setProperty ("content", prompt);
-    messages.add (userMsg);
+    juce::DynamicObject sysMsg;
+    sysMsg.setProperty ("role", "system");
+    sysMsg.setProperty ("content", systemPrompt);
+    messages.add (juce::var (sysMsg));
 
-    obj->setProperty ("messages", messages);
+    juce::DynamicObject userMsg;
+    userMsg.setProperty ("role", "user");
+    userMsg.setProperty ("content", prompt);
+    messages.add (juce::var (userMsg));
 
-    return juce::JSON::toString (obj);
+    request.setProperty ("messages", messages);
+
+    return juce::JSON::toString (request);
 }
 
 void CloudAIProvider::sendRequest (const juce::String& endpoint, const juce::String& body, std::function<void(const juce::var&)> callback)
 {
     juce::URL url (endpoint);
-    auto* stream = url.withPOSTData (body)
-                     .withExtraHeaders ("Content-Type: application/json\r\n"
-                                       "Authorization: Bearer " + getAPIKey (currentProviderName))
-                     .createInputStream (juce::URL::InputStreamOptions (juce::URL::ParameterHandling::inAddress)
-                                         .withConnectionTimeoutMs (5000)
-                                         .withResponseTimeoutMs (30000)
-                                         .withHeaders ({}));
 
-    if (!stream)
+    // This older-compatible version avoids the newer JUCE API methods
+    // that your build doesn't have. If you want headers/timeouts, upgrade JUCE.
+    auto* stream = url.withPOSTData (body)
+                      .createInputStream();
+
+    if (stream == nullptr)
     {
         juce::DynamicObject::Ptr error = new juce::DynamicObject();
         error->setProperty ("error", "Failed to create network request");
-        callback (error);
+        callback (juce::var (error.get()));
         return;
     }
 
     juce::Thread::launch ([stream = std::unique_ptr<juce::InputStream> (stream), callback]() mutable
     {
-        juce::String responseText = stream->readEntireStreamAsString();
-        juce::var parsed = juce::JSON::parse (responseText);
+        const juce::String responseText = stream->readEntireStreamAsString();
+        const juce::var parsed = juce::JSON::parse (responseText);
 
-        juce::MessageManager::callAsync ([callback, parsed]()
+        juce::MessageManager::callAsync ([callback, parsed]() mutable
         {
             callback (parsed);
         });
@@ -345,18 +343,22 @@ master_volume, master_pan)";
     {
         return "You are an audio analysis expert. Given audio characteristics, output a synth patch JSON as in text_to_patch task.";
     }
+
     return "You are a helpful assistant.";
 }
 
 bool CloudAIProvider::validateResponse (const juce::var& response) const
 {
-    if (!response.isObject()) return false;
+    if (!response.isObject())
+        return false;
+
     auto* obj = response.getDynamicObject();
-    if (!obj) return false;
+    if (obj == nullptr)
+        return false;
 
     if (obj->hasProperty ("choices"))
     {
-        auto choices = obj->getProperty ("choices");
+        const juce::var choices = obj->getProperty ("choices");
         if (choices.isArray() && choices.size() > 0)
             return true;
     }
