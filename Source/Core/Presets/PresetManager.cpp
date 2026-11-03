@@ -33,7 +33,7 @@ void PresetManager::loadPreset (int index)
     if (index < 0 || index >= presets.size())
         return;
 
-    const auto& entry = presets[index];
+    const auto& entry = presets.getReference (index);
     juce::ValueTree state;
     PresetMetadata metadata;
 
@@ -51,7 +51,7 @@ void PresetManager::savePreset (int index, const juce::String& name)
     if (index < 0 || index >= presets.size())
         return;
 
-    auto& entry = presets[index];
+    auto& entry = presets.getReference (index);
     entry.name = name;
 
     // Update metadata
@@ -96,9 +96,9 @@ void PresetManager::deletePreset (int index)
     if (index < 0 || index >= presets.size())
         return;
 
-    if (!presets[index].isFactory)
+    if (!presets.getReference (index).isFactory)
     {
-        presets[index].file.deleteFile();
+        presets.getReference (index).file.deleteFile();
     }
 
     presets.remove (index);
@@ -112,7 +112,7 @@ void PresetManager::renamePreset (int index, const juce::String& newName)
     if (index < 0 || index >= presets.size())
         return;
 
-    auto& entry = presets[index];
+    auto& entry = presets.getReference (index);
     if (entry.isFactory)
         return; // Can't rename factory presets
 
@@ -204,7 +204,7 @@ bool PresetManager::exportPreset (int index, const juce::File& file)
     if (index < 0 || index >= presets.size())
         return false;
 
-    const auto& entry = presets[index];
+    const auto& entry = presets.getReference (index);
     juce::ValueTree state = parameterManager.getAPVTS().copyState();
     auto metadata = entry.metadata;
     metadata.numParameters = state.getNumChildren();
@@ -515,7 +515,7 @@ void PresetManager::createFactoryPresets()
         juce::ValueTree state = parameterManager.getAPVTS().copyState();
         metadata.numParameters = state.getNumChildren();
 
-        juce::File presetFile = factoryDir.getChildFile (fp.name + PresetFormat::FILE_EXTENSION);
+        juce::File presetFile = factoryDir.getChildFile (juce::String (fp.name) + PresetFormat::FILE_EXTENSION);
         if (PresetFormat::writePreset (presetFile, state, metadata))
         {
             PresetEntry entry;

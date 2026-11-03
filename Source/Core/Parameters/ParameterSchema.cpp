@@ -11,9 +11,9 @@ juce::Array<ParameterInfo> ParameterSchema::createParameterList()
     juce::Array<ParameterInfo> params;
 
     // Helper lambda for adding parameters
-    auto addParam = [&] (const char* id, const char* name, const char* category,
+    auto addParam = [&] (const juce::String& id, const juce::String& name, const juce::String& category,
                          float minV, float maxV, float defV, float interval,
-                         const char* unit, bool automatable = true, bool meta = false)
+                         const juce::String& unit, bool automatable = true, bool meta = false)
     {
         ParameterInfo p;
         p.id = id;
@@ -43,17 +43,17 @@ juce::Array<ParameterInfo> ParameterSchema::createParameterList()
         const juce::String prefix = "osc" + juce::String (o);
         const juce::String label = "Osc " + juce::String (o);
 
-        addParam ((prefix + "Waveform").toRawUTF8(), (label + " Waveform").toRawUTF8(), Categories::oscillators,
+        addParam ((prefix + "Waveform"), (label + " Waveform"), Categories::oscillators,
                   0.0f, 6.0f, 2.0f, 1.0f, "", true, false);  // 0=Sine,1=Tri,2=Saw,3=Sq,4=Pulse,5=WT,6=Noise
-        addParam ((prefix + "Level").toRawUTF8(), (label + " Level").toRawUTF8(), Categories::oscillators,
+        addParam ((prefix + "Level"), (label + " Level"), Categories::oscillators,
                   0.0f, 1.0f, (o == 1 ? 1.0f : 0.0f), 0.0f, "%");
-        addParam ((prefix + "Pitch").toRawUTF8(), (label + " Pitch").toRawUTF8(), Categories::oscillators,
+        addParam ((prefix + "Pitch"), (label + " Pitch"), Categories::oscillators,
                   -24.0f, 24.0f, 0.0f, 1.0f, "semitones");
-        addParam ((prefix + "FineTune").toRawUTF8(), (label + " Fine Tune").toRawUTF8(), Categories::oscillators,
+        addParam ((prefix + "FineTune"), (label + " Fine Tune"), Categories::oscillators,
                   -50.0f, 50.0f, 0.0f, 0.0f, "cents");
-        addParam ((prefix + "PulseWidth").toRawUTF8(), (label + " Pulse Width").toRawUTF8(), Categories::oscillators,
+        addParam ((prefix + "PulseWidth"), (label + " Pulse Width"), Categories::oscillators,
                   0.01f, 0.99f, 0.5f, 0.0f, "%");
-        addParam ((prefix + "PhaseMod").toRawUTF8(), (label + " Phase Mod").toRawUTF8(), Categories::oscillators,
+        addParam ((prefix + "PhaseMod"), (label + " Phase Mod"), Categories::oscillators,
                   0.0f, 1.0f, 0.0f, 0.0f, "%");
     }
 
@@ -75,15 +75,15 @@ juce::Array<ParameterInfo> ParameterSchema::createParameterList()
         const juce::String prefix = "filter" + juce::String (f);
         const juce::String label = "Filter " + juce::String (f);
 
-        addParam ((prefix + "Type").toRawUTF8(), (label + " Type").toRawUTF8(), Categories::filters,
+        addParam ((prefix + "Type"), (label + " Type"), Categories::filters,
                   0.0f, 6.0f, 0.0f, 1.0f, "");  // LP, HP, BP, Notch, LowShelf, HighShelf, Peak
-        addParam ((prefix + "Cutoff").toRawUTF8(), (label + " Cutoff").toRawUTF8(), Categories::filters,
+        addParam ((prefix + "Cutoff"), (label + " Cutoff"), Categories::filters,
                   20.0f, 20000.0f, (f == 1 ? 5000.0f : 20000.0f), 0.0f, "Hz");
-        addParam ((prefix + "Resonance").toRawUTF8(), (label + " Resonance").toRawUTF8(), Categories::filters,
+        addParam ((prefix + "Resonance"), (label + " Resonance"), Categories::filters,
                   0.1f, 20.0f, 1.0f, 0.0f, "");
-        addParam ((prefix + "Drive").toRawUTF8(), (label + " Drive").toRawUTF8(), Categories::filters,
+        addParam ((prefix + "Drive"), (label + " Drive"), Categories::filters,
                   0.0f, 1.0f, 0.0f, 0.0f, "%");
-        addParam ((prefix + "Keytrack").toRawUTF8(), (label + " Keytrack").toRawUTF8(), Categories::filters,
+        addParam ((prefix + "Keytrack"), (label + " Keytrack"), Categories::filters,
                   0.0f, 1.0f, (f == 1 ? 0.5f : 0.0f), 0.0f, "%");
     }
 
@@ -137,19 +137,19 @@ juce::Array<ParameterInfo> ParameterSchema::createParameterList()
         const juce::String prefix = "lfo" + juce::String (l);
         const juce::String label = "LFO " + juce::String (l);
 
-        addParam ((prefix + "Waveform").toRawUTF8(), (label + " Waveform").toRawUTF8(), Categories::lfos,
+        addParam ((prefix + "Waveform"), (label + " Waveform"), Categories::lfos,
                   0.0f, 5.0f, 0.0f, 1.0f, "");  // Sine, Tri, Saw, Sq, S&H, Random
-        addParam ((prefix + "Rate").toRawUTF8(), (label + " Rate").toRawUTF8(), Categories::lfos,
+        addParam ((prefix + "Rate"), (label + " Rate"), Categories::lfos,
                   0.01f, 30.0f, 1.0f, 0.0f, "Hz");
-        addParam ((prefix + "Depth").toRawUTF8(), (label + " Depth").toRawUTF8(), Categories::lfos,
+        addParam ((prefix + "Depth"), (label + " Depth"), Categories::lfos,
                   0.0f, 1.0f, 0.0f, 0.0f, "%");
-        addParam ((prefix + "Delay").toRawUTF8(), (label + " Delay").toRawUTF8(), Categories::lfos,
+        addParam ((prefix + "Delay"), (label + " Delay"), Categories::lfos,
                   0.0f, 10.0f, 0.0f, 0.0f, "s");
-        addParam ((prefix + "FadeIn").toRawUTF8(), (label + " Fade In").toRawUTF8(), Categories::lfos,
+        addParam ((prefix + "FadeIn"), (label + " Fade In"), Categories::lfos,
                   0.0f, 10.0f, 0.0f, 0.0f, "s");
-        addParam ((prefix + "KeySync").toRawUTF8(), (label + " Key Sync").toRawUTF8(), Categories::lfos,
+        addParam ((prefix + "KeySync"), (label + " Key Sync"), Categories::lfos,
                   0.0f, 1.0f, 1.0f, 1.0f, "", true, false);
-        addParam ((prefix + "TempoSync").toRawUTF8(), (label + " Tempo Sync").toRawUTF8(), Categories::lfos,
+        addParam ((prefix + "TempoSync"), (label + " Tempo Sync"), Categories::lfos,
                   0.0f, 1.0f, 0.0f, 1.0f, "", true, false);
     }
 
@@ -159,11 +159,11 @@ juce::Array<ParameterInfo> ParameterSchema::createParameterList()
         const juce::String prefix = "modSlot" + juce::String (s);
         const juce::String label = "Mod Slot " + juce::String (s);
 
-        addParam ((prefix + "Source").toRawUTF8(), (label + " Source").toRawUTF8(), Categories::modulation,
+        addParam ((prefix + "Source"), (label + " Source"), Categories::modulation,
                   0.0f, 15.0f, 0.0f, 1.0f, "", true, false);
-        addParam ((prefix + "Dest").toRawUTF8(), (label + " Dest").toRawUTF8(), Categories::modulation,
+        addParam ((prefix + "Dest"), (label + " Dest"), Categories::modulation,
                   0.0f, 25.0f, 0.0f, 1.0f, "", true, false);
-        addParam ((prefix + "Amount").toRawUTF8(), (label + " Amount").toRawUTF8(), Categories::modulation,
+        addParam ((prefix + "Amount"), (label + " Amount"), Categories::modulation,
                   -1.0f, 1.0f, 0.0f, 0.0f, "%");
     }
 
