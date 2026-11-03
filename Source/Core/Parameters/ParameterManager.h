@@ -100,7 +100,7 @@ private:
     juce::AudioProcessorValueTreeState apvts;
 
     // Parameter layout creation
-    std::unique_ptr<juce::AudioProcessorValueTreeState::ParameterLayout> createParameterLayout();
+    juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ParameterManager)
 };

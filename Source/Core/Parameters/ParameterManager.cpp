@@ -101,9 +101,9 @@ juce::StringArray ParameterManager::getParameterIDsForCategory (const juce::Stri
     return ids;
 }
 
-std::unique_ptr<juce::AudioProcessorValueTreeState::ParameterLayout> ParameterManager::createParameterLayout()
+juce::AudioProcessorValueTreeState::ParameterLayout ParameterManager::createParameterLayout()
 {
-    auto layout = std::make_unique<juce::AudioProcessorValueTreeState::ParameterLayout>();
+    juce::AudioProcessorValueTreeState::ParameterLayout layout;
 
     for (const auto& paramInfo : ParameterSchema::getAllParameters())
     {
@@ -112,24 +112,34 @@ std::unique_ptr<juce::AudioProcessorValueTreeState::ParameterLayout> ParameterMa
 
         if (paramInfo.interval > 0.0f)
         {
-            // Discrete parameter (choice/enum)
             juce::StringArray choices;
-            int numSteps = static_cast<int> ((paramInfo.maxValue - paramInfo.minValue) / paramInfo.interval) + 1;
+            const int numSteps = static_cast<int> ((paramInfo.maxValue - paramInfo.minValue) / paramInfo.interval) + 1;
+
             for (int i = 0; i < numSteps; ++i)
             {
-                float val = paramInfo.minValue + i * paramInfo.interval;
-                choices.add (juce::String (val, 2));
+                const float value = paramInfo.minValue + static_cast<float> (i) * paramInfo.interval;
+                choices.add (juce::String (value, 2));
             }
-            auto param = std::make_unique<juce::AudioParameterChoice> (paramInfo.id, paramInfo.name, choices,
-                                                     static_cast<int> ((paramInfo.defaultValue - paramInfo.minValue) / paramInfo.interval));
-            layout->add (std::move (param));
+
+            layout.add (std::make_unique<juce::AudioParameterChoice> (
+                paramInfo.id,
+                paramInfo.name,
+                choices,
+                static_cast<int> ((paramInfo.defaultValue - paramInfo.minValue) / paramInfo.interval)));
         }
         else
         {
-            // Continuous parameter
-            auto range = juce::NormalisableRange<float> (paramInfo.minValue, paramInfo.maxValue, 0.001f, 1.0f);
-            auto param = std::make_unique<juce::AudioParameterFloat> (paramInfo.id, paramInfo.name, range, paramInfo.defaultValue);
-            layout->add (std::move (param));
+            const juce::NormalisableRange<float> range (
+                paramInfo.minValue,
+                paramInfo.maxValue,
+                0.001f,
+                1.0f);
+
+            layout.add (std::make_unique<juce::AudioParameterFloat> (
+                paramInfo.id,
+                paramInfo.name,
+                range,
+                paramInfo.defaultValue));
         }
     }
 
