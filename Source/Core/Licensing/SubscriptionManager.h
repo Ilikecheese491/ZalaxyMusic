@@ -62,9 +62,11 @@ private:
     int trialDays = 14;
 
     // RSA public key for license verification (embedded)
+    // TODO: Replace with your actual RSA public key (PEM format) for production.
+    // Generate with: openssl genrsa -out private.pem 2048 && openssl rsa -in private.pem -pubout -out public.pem
     static constexpr const char* PUBLIC_KEY_PEM =
         "-----BEGIN PUBLIC KEY-----\n"
-        "YOUR_RSA_PUBLIC_KEY_HERE\n"
+        "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAnREPLACE_WITH_REAL_KEY\n"
         "-----END PUBLIC KEY-----";
 
     juce::File getDataFile() const;

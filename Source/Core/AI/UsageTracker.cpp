@@ -36,8 +36,10 @@ void UsageTracker::recordUsage (int promptTokens, int completionTokens, const ju
     providerUsage.promptTokens += promptTokens;
     providerUsage.completionTokens += completionTokens;
 
-    // Estimate cost (rough average)
-    estimatedCost += (promptTokens + completionTokens) / 1000.0 * 0.001; // $0.001 per 1k tokens average
+    // Estimate cost (rough average) - update both total and per-provider
+    const double cost = (promptTokens + completionTokens) / 1000.0 * 0.001; // $0.001 per 1k tokens average
+    estimatedCost += cost;
+    providerUsage.cost += cost;
 
     checkThresholds();
 }
@@ -105,7 +107,8 @@ void UsageTracker::load()
     if (!file.existsAsFile())
         return;
 
-    juce::var parsed = juce::JSON::parse (file);
+    juce::String jsonText = file.loadFileAsString();
+    juce::var parsed = juce::JSON::parse (jsonText);
     if (!parsed.isObject())
         return;
 
