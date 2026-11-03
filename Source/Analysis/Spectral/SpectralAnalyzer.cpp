@@ -60,10 +60,10 @@ float SpectralAnalyzer::computeRolloff (float threshold) const
         const float mag = magnitudes[static_cast<size_t> (i)];
         cumulativeEnergy += mag * mag;
         if (cumulativeEnergy >= targetEnergy)
-            return static_cast<float> (i) * sampleRate / fftSize;
+            return static_cast<float> (i) * sampleRate / static_cast<float> (fftSize);
     }
 
-    return static_cast<float> (numBins - 1) * sampleRate / fftSize;
+    return static_cast<float> (numBins - 1) * sampleRate / static_cast<float> (fftSize);
 }
 
 float SpectralAnalyzer::computeBrightness() const
