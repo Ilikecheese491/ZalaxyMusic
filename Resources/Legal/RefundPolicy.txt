@@ -1,0 +1,49 @@
+ZALAXYMUSIC REFUND POLICY
+
+Version 1.0 — Effective Date: 2026-11-01
+
+1. FREE TRIAL PERIOD
+During the free period (before paid licensing), no refunds apply as no payment was made.
+
+2. PAID LICENSE REFUNDS
+2.1 Technical Defect Refund (14 Days)
+If the Software fails to install, load in a supported DAW, or produce audio due to a reproducible bug, you may request a full refund within 14 days of purchase.
+
+2.2 Process
+Email legal@zalaxymusic.com with:
+- Order number / license key
+- DAW name and version
+- OS version
+- Steps to reproduce the issue
+- Screen recording or logs (if possible)
+
+2.3 We will:
+- Attempt to reproduce and fix the issue within 7 business days
+- If unresolved, issue a full refund to original payment method within 10 business days
+
+3. NON-REFUNDABLE SCENARIOS
+- Change of mind / "don't like the sound"
+- Incompatibility with unsupported DAWs or OS versions
+- Failure to meet subjective expectations
+- AI feature quality (cloud/local output varies by prompt/model)
+- License key revocation due to EULA violation
+
+4. EU/UK CONSUMER RIGHTS (14-Day Withdrawal)
+4.1 Consumers in the EU/UK have a statutory 14-day right to withdraw from distance contracts for digital content.
+4.2 By purchasing and downloading the Software, you expressly consent to immediate delivery and acknowledge you lose the right to withdraw once download begins (per Consumer Rights Directive 2011/83/EU Art. 16(m)).
+4.3 The 14-day technical defect refund above exceeds statutory minimums for defective goods.
+
+5. SUBSCRIPTIONS (If Applicable)
+- Monthly/annual subscriptions: cancel anytime, no prorated refunds for partial periods
+- Access continues until period ends
+- No refunds for unused time
+
+6. CHARGEBACKS
+Initiating a chargeback without contacting us first may result in license revocation and denial of future purchases.
+
+7. CONTACT
+Refund requests: legal@zalaxymusic.com
+Response time: ≤2 business days
+
+---
+This policy complies with: Texas law, EU Consumer Rights Directive 2011/83/EU, UK Consumer Contracts Regulations 2013, Australian Consumer Law, and general principles in other listed jurisdictions.

@@ -1,0 +1,66 @@
+# Build directories
+build/
+*/build/
+*.vs/
+.vscode/
+*.sln
+*.vcxproj*
+*.vcxproj.filters
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+*.cmake
+
+# JUCE
+JUCE/modules/*
+
+# IDE
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Compiled objects
+*.obj
+*.o
+*.lib
+*.dll
+*.exe
+*.pdb
+*.ilk
+*.exp
+
+# VST3 plugins
+*.vst3
+*.component
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+temp/
+tmp/
+
+# Package managers
+vcpkg/
+conan/
+packages/
+
+# Test outputs
+test-results/
+coverage/
+
+# OS
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Local config (never commit)
+local.env
+*.local

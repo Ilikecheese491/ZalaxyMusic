@@ -1,0 +1,48 @@
+#include "TextToPatchRequest.h"
+
+namespace zalaxy
+{
+
+juce::var TextToPatchRequest::createRequest (const juce::String& prompt)
+{
+    juce::DynamicObject::Ptr obj = new juce::DynamicObject();
+    obj->setProperty ("prompt", prompt);
+    obj->setProperty ("max_parameters", 80);
+    obj->setProperty ("temperature", 0.7);
+    return obj;
+}
+
+bool TextToPatchRequest::validateResponse (const juce::var& response)
+{
+    if (!response.isObject()) return false;
+    auto* obj = response.getDynamicObject();
+    if (!obj->hasProperty ("parameters")) return false;
+
+    auto params = obj->getProperty ("parameters");
+    if (!params.isArray()) return false;
+
+    for (auto& param : *params.getArray())
+    {
+        if (!param.isObject()) return false;
+        auto* p = param.getDynamicObject();
+        if (!p->hasProperty ("id") || !p->hasProperty ("value")) return false;
+        if (!p->getProperty ("id").isString()) return false;
+        if (!p->getProperty ("value").isNumber()) return false;
+    }
+    return true;
+}
+
+juce::String TextToPatchRequest::getSchema()
+{
+    return R"({
+        "type": "object",
+        "properties": {
+            "prompt": {"type": "string"},
+            "max_parameters": {"type": "integer"},
+            "temperature": {"type": "number"}
+        },
+        "required": ["prompt"]
+    })";
+}
+
+} // namespace zalaxy

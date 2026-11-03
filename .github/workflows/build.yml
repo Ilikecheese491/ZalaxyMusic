@@ -1,0 +1,115 @@
+name: Build ZalaxyMusic VST3
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-windows:
+    name: Build Windows VST3
+    runs-on: windows-latest
+    timeout-minutes: 30
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Setup CMake
+      uses: jwlawson/actions-setup-cmake@v2
+      with:
+        cmake-version: '3.25'
+
+    - name: Setup Ninja
+      uses: seanmiddleditch/gha-setup-ninja@v5
+
+    - name: Configure CMake
+      run: |
+        cmake -B build -G Ninja \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DJUCE_DIR=${{ github.workspace }}/JUCE \
+          -DVST3_SDK_PATH="" \
+          .
+
+    - name: Build
+      run: cmake --build build --config Release --parallel
+
+    - name: Verify VST3 output
+      run: |
+        if (Test-Path "build/bin/ZalaxyMusic.vst3/Contents/x86_64-win/ZalaxyMusic.vst3") {
+          Write-Host "VST3 built successfully!"
+        } else {
+          Write-Host "VST3 not found at expected location"
+          Get-ChildItem -Recurse build/bin
+          exit 1
+        }
+
+    - name: Upload VST3 artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ZalaxyMusic-Windows-VST3
+        path: build/bin/ZalaxyMusic.vst3/
+        retention-days: 30
+
+  build-test:
+    name: Run Tests
+    runs-on: windows-latest
+    timeout-minutes: 15
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Setup CMake
+      uses: jwlawson/actions-setup-cmake@v2
+      with:
+        cmake-version: '3.25'
+
+    - name: Setup Ninja
+      uses: seanmiddleditch/gha-setup-ninja@v5
+
+    - name: Configure CMake with Tests
+      run: |
+        cmake -B build -G Ninja \
+          -DCMAKE_BUILD_TYPE=Debug \
+          -DJUCE_DIR=${{ github.workspace }}/JUCE \
+          -DVST3_SDK_PATH="" \
+          .
+
+    - name: Build Tests
+      run: cmake --build build --config Debug --parallel
+
+    - name: Run Tests
+      run: |
+        cd build
+        ctest --output-on-failure -C Debug
+
+  static-analysis:
+    name: Static Analysis (clang-tidy)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y clang-tidy
+
+    - name: Run clang-tidy
+      run: |
+        cd Source
+        find . -name "*.cpp" -o -name "*.h" | xargs clang-tidy -checks='*,-llvmlibc-*,-modernize-use-trailing-return-type' -- -std=c++20 -I../JUCE/modules -Isrc 2>&1 | head -100

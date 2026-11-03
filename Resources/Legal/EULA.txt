@@ -1,0 +1,77 @@
+ZALAXYMUSIC END-USER LICENSE AGREEMENT (EULA)
+
+Version 1.0 — Effective Date: 2026-11-01
+
+IMPORTANT — READ CAREFULLY: This End-User License Agreement ("Agreement") is a legal agreement between you ("Licensee") and ZalaxyMusic ("Licensor," "we," "us," or "our"), a Texas sole proprietorship. By installing, copying, or using the ZalaxyMusic software ("Software"), you agree to be bound by the terms of this Agreement. If you do not agree, do not install or use the Software.
+
+1. LICENSE GRANT
+1.1 Subject to the terms of this Agreement, Licensor grants you a non-exclusive, non-transferable, revocable license to:
+(a) Install and use the Software on computers you own or control;
+(b) Use the Software to create musical works, recordings, and performances;
+(c) Distribute musical works created with the Software royalty-free, including for commercial purposes.
+
+1.2 This license is personal to you and may not be shared, sublicensed, rented, leased, or transferred.
+
+2. RESTRICTIONS
+You shall not:
+(a) Reverse engineer, decompile, disassemble, or attempt to derive the source code of the Software;
+(b) Remove or alter any copyright, trademark, or proprietary notices;
+(c) Use the Software to create competing synthesizer products or sound libraries for redistribution;
+(d) Distribute, sell, or share the Software itself (including VST3 binary, installer, presets, wavetables);
+(e) Use the Software in violation of any applicable law or regulation;
+(f) Benchmark or publish performance comparisons without Licensor's prior written consent.
+
+3. AI FEATURES & CLOUD SERVICES
+3.1 The Software includes optional AI-powered features (text-to-patch, audio analysis, production assistant) that may utilize:
+- Local inference (runs entirely on your computer, no data leaves your machine)
+- Cloud inference (requires internet connection, sends your prompts to third-party AI providers)
+
+3.2 When using cloud AI features:
+(a) You acknowledge that your prompts/audio are transmitted to AI providers (e.g., Together AI, OpenRouter, Groq) and/or Licensor's proxy server;
+(b) You are responsible for obtaining and managing your own API keys where required;
+(c) Licensor is not liable for AI provider uptime, pricing changes, or output quality;
+(c) You may disable cloud features entirely and use local-only mode.
+
+3.3 Licensor reserves the right to modify, limit, or discontinue cloud AI features with 30 days' notice.
+
+4. INTELLECTUAL PROPERTY
+4.1 All rights, title, and interest in the Software (including code, UI, presets, wavetables, documentation) remain with Licensor.
+4.2 Musical works YOU create with the Software are YOUR property. Licensor claims no ownership.
+4.3 Factory presets and wavetables included with the Software are licensed for use in your productions but may not be extracted and redistributed as standalone sound libraries.
+
+5. DMCA & PRESET SHARING
+5.1 If the Software includes a preset-sharing feature, you agree not to upload presets that infringe third-party copyrights.
+5.2 Licensor designates a DMCA agent (see DMCA_Agent.txt) for takedown notices.
+5.3 Repeat infringers will have sharing privileges revoked.
+
+6. UPDATES
+6.1 Licensor may provide updates, bug fixes, or new versions. Updates are subject to this Agreement.
+6.2 Licensor is not obligated to provide updates or support.
+6.3 Major version upgrades (e.g., v1.x → v2.0) may require a new license purchase.
+
+7. WARRANTY DISCLAIMER
+THE SOFTWARE IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND. LICENSOR DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT. LICENSOR DOES NOT WARRANT UNINTERRUPTED OR ERROR-FREE OPERATION.
+
+8. LIMITATION OF LIABILITY
+TO THE MAXIMUM EXTENT PERMITTED BY LAW, LICENSOR SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING LOST PROFITS, DATA LOSS, OR BUSINESS INTERRUPTION. LICENSOR'S TOTAL LIABILITY SHALL NOT EXCEED THE AMOUNT PAID BY YOU FOR THE SOFTWARE (OR $10 IF FREE).
+
+9. TERMINATION
+9.1 This Agreement terminates automatically if you breach any term.
+9.2 Upon termination, you must destroy all copies of the Software.
+9.3 Sections 4, 7, 8, 9, 10, 11 survive termination.
+
+10. GOVERNING LAW & DISPUTE RESOLUTION
+10.1 This Agreement is governed by the laws of the State of Texas, USA, without regard to conflict-of-law principles.
+10.2 Any dispute arising from this Agreement shall be resolved in the state or federal courts located in Travis County, Texas. You consent to personal jurisdiction therein.
+10.3 If any provision is held unenforceable, the remainder remains in effect.
+
+11. EXPORT COMPLIANCE
+You shall not export the Software in violation of U.S. export laws (EAR, ITAR). The Software may use encryption (TLS for cloud AI) classified under ECCN 5D002.c (NLR).
+
+12. U.S. GOVERNMENT RIGHTS
+If you are a U.S. Government entity, the Software is "Commercial Computer Software" with restricted rights per DFARS 252.227-7014 or FAR 52.227-19.
+
+13. ENTIRE AGREEMENT
+This Agreement constitutes the entire agreement between you and Licensor regarding the Software and supersedes all prior agreements.
+
+CONTACT: legal@zalaxymusic.com (or your website contact)

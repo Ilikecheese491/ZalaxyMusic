@@ -1,0 +1,17 @@
+Asset Name,Asset Type,Source/Creator,License,Commercial Use Allowed,Redistribution in Binary Allowed,Modification Allowed,Attribution Required,License File Path,Notes,Status
+ZalaxyMusic Source Code,Software,You (Claude-assisted),Proprietary / Custom,Yes,Yes (as compiled binary),Yes,No,N/A,Core plugin code,Verified
+JUCE Framework,Library,JUCE Team,JUCE 9.0.4 License (GPLv3 + Commercial),Yes,Yes,Yes,Yes,JUCE/LICENSE.md,Using GPLv3 — plugin must be GPLv3 compatible OR buy commercial license,⚠️ DECIDE: GPL or Commercial
+ONNX Runtime,Library,Microsoft,MIT,Yes,Yes,Yes,Yes,ONNX_RUNTIME_LICENSE,For local AI inference,Verified
+Phi-3-mini-4k Model,AI Model,Microsoft,Microsoft Research License (MIT-like),Yes,Yes,Yes,Yes,MODEL_LICENSE,Quantized INT4 version (1.8 GB),Verified
+System Fonts (Segoe UI, etc.),Font,Microsoft/OS,OS License,Yes,Yes (runtime only),No,No,N/A,JUCE uses system fonts,Verified
+ColorScheme.h / ZalaxyTheme,Code,You (Claude),Custom (MIT-equivalent),Yes,Yes,Yes,No,N/A,Your design system tokens,Verified
+ParameterKnob / UI Components,Code,You (Claude),Custom (MIT-equivalent),Yes,Yes,Yes,No,N/A,Custom JUCE components,Verified
+Factory Presets (to be created),Audio Presets,You / Sound Designer,Custom,Yes,Yes,Yes,Yes,PRESET_LICENSES/,Create or commission — verify license,⚠️ PENDING
+Wavetables (to be created),Audio/Wavetable,You / Sound Designer,Custom,Yes,Yes,Yes,Yes,WAVETABLE_LICENSES/,Create or commission — verify license,⚠️ PENDING
+Knob Graphics / UI Images (to be created),Image,You / Designer,Custom,Yes,Yes,Yes,Yes,IMAGE_LICENSES/,Create or commission — verify license,⚠️ PENDING
+Logo / Branding (to be created),Image,You / Designer,Custom,Yes,Yes,Yes,Yes,BRAND_LICENSES/,Create or commission — verify license,⚠️ PENDING
+Background Textures (to be created),Image,You / Designer,Custom,Yes,Yes,Yes,Yes,IMAGE_LICENSES/,Create or commission — verify license,⚠️ PENDING
+Icon Set (to be created),Image,You / Designer,Custom,Yes,Yes,Yes,Yes,IMAGE_LICENSES/,Create or commission — verify license,⚠️ PENDING
+Documentation / Manual,Text,You,Custom,Yes,Yes,Yes,Yes,N/A,User manual, website copy,Verified
+Website Code (to be created),Code,You / Developer,Custom,Yes,Yes,Yes,Yes,N/A,Store, legal pages, download,⚠️ PENDING
+Proxy Server Code (to be created),Code,You / Developer,Custom,Yes,Yes,Yes,Yes,N/A,Cloud AI proxy (rate limit, BYOK),⚠️ PENDING
