@@ -12,7 +12,7 @@ namespace zalaxy
 
 class BYOKSetupWizard : public juce::Component,
                         public juce::Button::Listener,
-                        public juce::WebBrowserComponent::Listener
+                        public juce::Timer
 {
 public:
     enum class Step
@@ -88,18 +88,6 @@ public:
         }
     }
 
-    void webBrowserPageLoadStarted (const juce::String& url) override
-    {
-        if (url.contains ("openrouter.ai/keys"))
-        {
-            // User is on the API keys page - advance to key creation step
-            if (currentStep == Step::CreateKey)
-            {
-                showKeyCreatedInstructions();
-            }
-        }
-    }
-
     std::function<void()> onComplete;
 
 private:
@@ -116,7 +104,6 @@ private:
     std::unique_ptr<juce::TextButton> openOpenRouterButton;
     std::unique_ptr<juce::TextButton> pasteKeyButton;
     std::unique_ptr<juce::TextButton> verifyKeyButton;
-    std::unique_ptr<juce::WebBrowserComponent> webBrowser;
 
     juce::String pendingAPIKey;
     float checkmarkProgress = 0.0f;
@@ -611,6 +598,9 @@ private:
     {
         if (onComplete)
             onComplete();
+
+        if (auto* dialog = findParentComponentOfClass<juce::DialogWindow>())
+            dialog->exitModalState (1);
     }
 
     void updateUI()
@@ -695,6 +685,7 @@ private:
 SettingsPanel::SettingsPanel (CloudAIProvider& aiProvider, SubscriptionManager& subManager)
     : aiProvider (aiProvider)
     , subscriptionManager (subManager)
+    , usageProgressBar (usageProgress)
 {
     createAISection();
     createModeSection();
@@ -750,7 +741,7 @@ void SettingsPanel::createAISection()
     apiKeyLabel.setColour (juce::Label::textColourId, theme.getColor (ZalaxyTheme::ColorId::TextMuted));
 
     apiKeyEditor.setText (aiProvider.getAPIKey ("OpenRouter"));
-    apiKeyEditor.setPlaceholderText ("sk-or-v1-xxxxxxxxxxxx (paste your OpenRouter key here)");
+    apiKeyEditor.setTextToShowWhenEmpty ("sk-or-v1-xxxxxxxxxxxx (paste your OpenRouter key here)", theme.getColor (ZalaxyTheme::ColorId::TextMuted));
     apiKeyEditor.setFont (theme.getFont ("bodySmall"));
     apiKeyEditor.setColour (juce::TextEditor::backgroundColourId, theme.getColor (ZalaxyTheme::ColorId::Surface));
     apiKeyEditor.setColour (juce::TextEditor::textColourId, theme.getColor (ZalaxyTheme::ColorId::TextPrimary));
@@ -1010,7 +1001,7 @@ void SettingsPanel::saveAPIKey()
     else
     {
         keyStatusLabel.setText ("✗ Failed to save key", juce::dontSendNotification);
-        keyStatusLabel.setColour (juce::Label::textColourId, theme.getColor (ZalaxyTheme::ColorId::AccentError));
+        keyStatusLabel.setColour (juce::Label::textColourId, theme.getColor (ZalaxyTheme::ColorId::AccentDanger));
     }
 }
 
@@ -1034,7 +1025,7 @@ void SettingsPanel::testAPIKey()
             else
             {
                 keyStatusLabel.setText ("✗ " + message, juce::dontSendNotification);
-                keyStatusLabel.setColour (juce::Label::textColourId, theme.getColor (ZalaxyTheme::ColorId::AccentError));
+                keyStatusLabel.setColour (juce::Label::textColourId, theme.getColor (ZalaxyTheme::ColorId::AccentDanger));
             }
         });
     });
@@ -1042,50 +1033,64 @@ void SettingsPanel::testAPIKey()
 
 void SettingsPanel::showLicenseDialog()
 {
-    juce::AlertWindow dialog ("Enter License Key",
-                               "Paste your ZalaxyMusic license key below.\nFormat: ZALX-XXXX-XXXX-XXXX",
-                               juce::AlertWindow::NoIcon);
-    dialog.addTextEditor ("licenseKey", "", "License Key", false);
-    dialog.addButton ("Activate", 1, theme.getColor (ZalaxyTheme::ColorId::AccentPrimary));
-    dialog.addButton ("Cancel", 0, theme.getColor (ZalaxyTheme::ColorId::TextMuted));
+    auto* dialog = new juce::AlertWindow (
+        "Enter License Key",
+        "Paste your ZalaxyMusic license key below.\nFormat: ZALX-XXXX-XXXX-XXXX",
+        juce::AlertWindow::NoIcon);
 
-    if (dialog.runModalLoop())
-    {
-        juce::String key = dialog.getTextEditorContents ("licenseKey").trim();
-        if (key.isNotEmpty())
+    dialog->addTextEditor ("licenseKey", "", "License Key", false);
+    dialog->addButton ("Activate", 1);
+    dialog->addButton ("Cancel", 0);
+
+    juce::Component::SafePointer<SettingsPanel> safeThis (this);
+    juce::Component::SafePointer<juce::AlertWindow> safeDialog (dialog);
+
+    dialog->enterModalState (
+        true,
+        juce::ModalCallbackFunction::create ([safeThis, safeDialog] (int result)
         {
-            if (subscriptionManager.validateLicenseKey (key))
+            if (result != 1 || safeThis == nullptr || safeDialog == nullptr)
+                return;
+
+            const auto key = safeDialog->getTextEditorContents ("licenseKey").trim();
+            if (key.isEmpty())
+                return;
+
+            if (safeThis->subscriptionManager.validateLicenseKey (key))
             {
-                subscriptionManager.applyLicenseKey (key);
-                updateUI();
-                juce::AlertWindow::showMessageBoxAsync (juce::AlertWindow::InfoIcon,
-                                                         "Success",
-                                                         "License activated! " + subscriptionManager.getCurrentTierName() + " features unlocked.",
-                                                         "OK");
+                safeThis->subscriptionManager.applyLicenseKey (key);
+                safeThis->updateUI();
+                juce::AlertWindow::showMessageBoxAsync (
+                    juce::AlertWindow::InfoIcon,
+                    "Success",
+                    "License activated! " + safeThis->subscriptionManager.getCurrentTierName() + " features unlocked.",
+                    "OK");
             }
             else
             {
-                juce::AlertWindow::showMessageBoxAsync (juce::AlertWindow::WarningIcon,
-                                                         "Invalid Key",
-                                                         "The license key is invalid or expired.",
-                                                         "OK");
+                juce::AlertWindow::showMessageBoxAsync (
+                    juce::AlertWindow::WarningIcon,
+                    "Invalid Key",
+                    "The license key is invalid or expired.",
+                    "OK");
             }
-        }
-    }
+        }),
+        true);
 }
 
 void SettingsPanel::showSetupGuide()
 {
-    // Show the BYOK wizard
     auto wizard = std::make_unique<BYOKSetupWizard> (aiProvider, subscriptionManager);
+    juce::Component::SafePointer<SettingsPanel> safeThis (this);
 
-    wizard->onComplete = [this, wizard = std::move (wizard)]() mutable
+    wizard->onComplete = [safeThis]()
     {
-        updateUI();
-        // wizard goes out of scope
+        if (safeThis != nullptr)
+            safeThis->updateUI();
     };
 
-    // Show as a modal dialog
+    wizard->setSize (520, 580);
+
     juce::DialogWindow::LaunchOptions options;
     options.content.setOwned (wizard.release());
     options.dialogTitle = "AI Setup Wizard";
@@ -1093,8 +1098,6 @@ void SettingsPanel::showSetupGuide()
     options.escapeKeyTriggersCloseButton = true;
     options.useNativeTitleBar = false;
     options.resizable = false;
-    options.component->setSize (520, 580);
-
     options.launchAsync();
 }
 
@@ -1104,7 +1107,7 @@ void SettingsPanel::updateUI()
     // Note: Would need UsageTracker reference - for now using placeholder
     tokensUsedLabel.setText ("Used: 0 tokens", juce::dontSendNotification);
     tokensRemainingLabel.setText ("Remaining: 100,000", juce::dontSendNotification);
-    usageProgressBar.setProgress (0.0);
+    usageProgress = 0.0;
 
     // Update subscription status
     auto tier = subscriptionManager.getCurrentTier();

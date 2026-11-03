@@ -1,6 +1,9 @@
 #pragma once
 
 #include "JuceModules.h"
+#include <array>
+#include <atomic>
+#include <cstdint>
 #include "Core/Parameters/ParameterManager.h"
 #include "Core/DSP/Oscillator.h"
 #include "Core/DSP/Filter.h"
@@ -20,6 +23,7 @@ public:
     void prepare (double sampleRate, int samplesPerBlock);
     void release();
     void processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages);
+    void copyWaveformData (float* destination, int numSamples) const;
 
     // MidiKeyboardStateListener
     void handleNoteOn (juce::MidiKeyboardState*, int midiChannel, int midiNoteNumber, float velocity) override;
@@ -61,6 +65,10 @@ private:
 
     Effects effects;
     double sampleRate = 44100.0;
+
+    static constexpr std::size_t visualizationBufferSize = 4096;
+    std::array<std::atomic<float>, visualizationBufferSize> visualizationBuffer {};
+    std::atomic<std::uint64_t> visualizationWritePosition { 0 };
 
     juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> masterVolume;
 

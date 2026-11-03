@@ -1,4 +1,5 @@
 #include "VisualizationEngine.h"
+#include <cmath>
 
 namespace zalaxy
 {
@@ -118,8 +119,22 @@ void VisualizationEngine::updateWaveform()
 
 void VisualizationEngine::updateSpectrum()
 {
-    // Get spectrum data from audio engine
-    audioEngine.copySpectrumData (spectrumBuffer.data(), spectrumSize);
+    // Calculate a frequency spectrum from the latest audio snapshot.
+    fftData.fill (0.0f);
+
+    for (int i = 0; i < fftSize; ++i)
+    {
+        const float phase = static_cast<float> (i) / static_cast<float> (fftSize - 1);
+        const float window = 0.5f - 0.5f * std::cos (juce::MathConstants<float>::twoPi * phase);
+        fftData[static_cast<std::size_t> (i)] = waveformBuffer[static_cast<std::size_t> (i)] * window;
+    }
+
+    fft.performFrequencyOnlyForwardTransform (fftData.data(), true);
+
+    const float normalisation = 2.0f / static_cast<float> (fftSize);
+    for (int i = 0; i < spectrumSize; ++i)
+        spectrumBuffer[static_cast<std::size_t> (i)] = juce::jlimit (0.0f, 1.0f,
+            fftData[static_cast<std::size_t> (i)] * normalisation * 4.0f);
 
     // Build path
     spectrumPath.clear();
@@ -151,14 +166,14 @@ void VisualizationEngine::updateSpectrogram()
     {
         for (int x = 0; x < spectrumSize; ++x)
         {
-            spectrogramHistory[y * spectrumSize + x] = spectrogramHistory[(y - 1) * spectrumSize + x];
+            spectrogramHistory[static_cast<std::size_t> (y * spectrumSize + x)] = spectrogramHistory[static_cast<std::size_t> ((y - 1) * spectrumSize + x)];
         }
     }
 
     // Add new spectrum data at bottom
     for (int x = 0; x < spectrumSize; ++x)
     {
-        spectrogramHistory[x] = spectrumBuffer[x];
+        spectrogramHistory[static_cast<std::size_t> (x)] = spectrumBuffer[static_cast<std::size_t> (x)];
     }
 
     // Update image
@@ -182,8 +197,7 @@ void VisualizationEngine::updateSpectrogram()
                 else
                     colour = juce::Colour::fromFloatRGBA (1.0f, 1.0f - (level - 0.75f) * 4.0f, 0.0f, level);
 
-                uint32_t* pixel = (uint32_t*)bitmap.getPixelPointer (x, y);
-                *pixel = colour.getPixelARGB();
+                bitmap.setPixelColour (x, y, colour);
             }
         }
     }

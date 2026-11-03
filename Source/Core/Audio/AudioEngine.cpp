@@ -8,6 +8,9 @@ namespace zalaxy
 AudioEngine::AudioEngine (ParameterManager& params)
     : parameters (params)
 {
+    for (auto& sample : visualizationBuffer)
+        sample.store (0.0f, std::memory_order_relaxed);
+
     for (int i = 0; i < MAX_VOICES; ++i)
     {
         voices[i].ampEnvelope.prepare (44100.0);
@@ -97,6 +100,54 @@ void AudioEngine::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuff
 
     float vol = masterVolume.getNextValue();
     buffer.applyGain (vol);
+
+    // Publish a mono snapshot for the UI visualizer without locking the audio thread.
+    const auto writeStart = visualizationWritePosition.load (std::memory_order_relaxed);
+    const int numChannels = buffer.getNumChannels();
+
+    for (int sample = 0; sample < numSamples; ++sample)
+    {
+        float monoSample = 0.0f;
+
+        for (int channel = 0; channel < numChannels; ++channel)
+            monoSample += buffer.getSample (channel, sample);
+
+        if (numChannels > 0)
+            monoSample /= static_cast<float> (numChannels);
+
+        const auto index = (writeStart + static_cast<std::uint64_t> (sample)) % visualizationBufferSize;
+        visualizationBuffer[static_cast<std::size_t> (index)].store (monoSample, std::memory_order_relaxed);
+    }
+
+    visualizationWritePosition.store (writeStart + static_cast<std::uint64_t> (numSamples),
+                                       std::memory_order_release);
+}
+
+void AudioEngine::copyWaveformData (float* destination, int numSamples) const
+{
+    if (destination == nullptr || numSamples <= 0)
+        return;
+
+    const auto writeEnd = visualizationWritePosition.load (std::memory_order_acquire);
+    const auto available = std::min<std::uint64_t> (writeEnd, visualizationBufferSize);
+
+    if (available == 0)
+    {
+        std::fill_n (destination, numSamples, 0.0f);
+        return;
+    }
+
+    const auto firstSample = writeEnd - available;
+
+    for (int i = 0; i < numSamples; ++i)
+    {
+        const auto sourceOffset = (numSamples == 1)
+            ? available - 1
+            : (static_cast<std::uint64_t> (i) * (available - 1)) / static_cast<std::uint64_t> (numSamples - 1);
+
+        const auto sourceIndex = (firstSample + sourceOffset) % visualizationBufferSize;
+        destination[i] = visualizationBuffer[static_cast<std::size_t> (sourceIndex)].load (std::memory_order_relaxed);
+    }
 }
 
 void AudioEngine::handleNoteOn (juce::MidiKeyboardState*, int midiChannel, int midiNoteNumber, float velocity)
