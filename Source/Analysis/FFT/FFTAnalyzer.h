@@ -1,6 +1,7 @@
 #pragma once
 
 #include "JuceModules.h"
+#include <vector>
 
 namespace zalaxy
 {
@@ -30,7 +31,7 @@ private:
     juce::HeapBlock<float> magnitude;
     juce::HeapBlock<float> phase;
     juce::HeapBlock<float> prevMagnitude;
-    juce::Array<float> window;
+    std::vector<float> window;
 
     void applyWindow();
 };
