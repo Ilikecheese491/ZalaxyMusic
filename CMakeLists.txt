@@ -208,6 +208,9 @@ target_link_libraries(zalaxy_ui PRIVATE
 
 target_link_libraries(${ZALAXY_PLUGIN_TARGET} PRIVATE zalaxy_ui)
 
+# PluginProcessor.h and PluginEditor.h include JUCE's generated umbrella header.
+juce_generate_juce_header(${ZALAXY_PLUGIN_TARGET})
+
 # Tests - only include if Tests directory exists with CMakeLists.txt
 if(EXISTS "${CMAKE_SOURCE_DIR}/Tests/CMakeLists.txt")
     enable_testing()
