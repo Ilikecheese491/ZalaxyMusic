@@ -41,6 +41,11 @@ if(NOT EXISTS "${JUCE_DIR}/CMakeLists.txt")
 endif()
 add_subdirectory(${JUCE_DIR} EXCLUDE_FROM_ALL)
 
+# Keep the built VST3 in a predictable location for CI and local debugging.
+set_target_properties(${PROJECT_NAME} PROPERTIES
+    JUCE_COPY_PLUGIN_AFTER_BUILD ON
+)
+
 # Main plugin target
 juce_add_plugin(${ZALAXY_PLUGIN_TARGET}
     PRODUCT_NAME "${ZALAXY_PLUGIN_NAME}"
