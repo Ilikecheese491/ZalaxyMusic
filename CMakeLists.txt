@@ -55,6 +55,7 @@ juce_add_plugin(${PROJECT_NAME}
         Source/Plugins/Synth/PluginProcessor.cpp
         Source/Plugins/Synth/PluginEditor.cpp
     INCLUDE_DIRS
+        Source
         Source/Core
         Source/AI
         Source/Analysis
@@ -84,6 +85,7 @@ add_library(zalaxy_core STATIC
 )
 
 target_include_directories(zalaxy_core PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/Source
     ${CMAKE_CURRENT_SOURCE_DIR}/Source/Core
     ${CMAKE_CURRENT_SOURCE_DIR}/Source/Common
 )
@@ -119,6 +121,7 @@ add_library(zalaxy_ai STATIC
 )
 
 target_include_directories(zalaxy_ai PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/Source
     ${CMAKE_CURRENT_SOURCE_DIR}/Source/AI
     ${CMAKE_CURRENT_SOURCE_DIR}/Source/Common
 )
@@ -140,6 +143,7 @@ add_library(zalaxy_analysis STATIC
 )
 
 target_include_directories(zalaxy_analysis PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/Source
     ${CMAKE_CURRENT_SOURCE_DIR}/Source/Analysis
     ${CMAKE_CURRENT_SOURCE_DIR}/Source/Common
 )
@@ -172,6 +176,7 @@ add_library(zalaxy_ui STATIC
 )
 
 target_include_directories(zalaxy_ui PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/Source
     ${CMAKE_CURRENT_SOURCE_DIR}/Source/UI
     ${CMAKE_CURRENT_SOURCE_DIR}/Source/Common
 )

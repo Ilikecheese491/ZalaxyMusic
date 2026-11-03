@@ -82,7 +82,7 @@ public:
     }
 
     int getNumWavetables() const noexcept { return (int)wavetables.size(); }
-    const juce::StringArray getWavetableNames() const noexcept;
+    juce::StringArray getWavetableNames() const noexcept;
 
     // Load custom wavetable from file (WAV, or serialized format)
     bool loadWavetableFromFile (const juce::File& file, const juce::String& name);
