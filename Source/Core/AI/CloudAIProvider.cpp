@@ -280,13 +280,13 @@ void CloudAIProvider::sendRequest (const juce::String& endpoint, const juce::Str
 {
     juce::URL url (endpoint);
 
-    juce::StringPairArray headers;
-    headers.set ("Content-Type", "application/json");
+    juce::URL::InputStreamOptions options (juce::URL::ParameterHandling::inAddress);
+    options.withHeaders ({"Content-Type", "application/json"});
 
     if (hasValidAPIKey())
-        headers.set ("Authorization", "Bearer " + getAPIKey (currentProviderName));
+        options.withHeaders ({"Authorization", "Bearer " + getAPIKey (currentProviderName)});
 
-    auto stream = url.withPOSTData (body).createInputStream (headers);
+    auto stream = url.withPOSTData (body).createInputStream (options);
 
     if (stream == nullptr)
     {
@@ -296,12 +296,14 @@ void CloudAIProvider::sendRequest (const juce::String& endpoint, const juce::Str
         return;
     }
 
-    juce::Thread::launch ([stream = std::move (stream), callback]() mutable
+    auto sharedStream = std::shared_ptr<juce::InputStream> (std::move (stream));
+
+    juce::Thread::launch ([sharedStream, callback]()
     {
-        const juce::String responseText = stream->readEntireStreamAsString();
+        const juce::String responseText = sharedStream->readEntireStreamAsString();
         const juce::var parsed = juce::JSON::parse (responseText);
 
-        juce::MessageManager::callAsync ([callback, parsed]() mutable
+        juce::MessageManager::callAsync ([callback, parsed]()
         {
             callback (parsed);
         });
