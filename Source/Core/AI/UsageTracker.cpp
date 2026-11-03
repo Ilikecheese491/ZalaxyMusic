@@ -71,30 +71,31 @@ void UsageTracker::checkThresholds()
 
 void UsageTracker::save()
 {
-    juce::var obj = new juce::DynamicObject();
+    juce::DynamicObject::Ptr obj = new juce::DynamicObject();
     obj->setProperty ("totalTokensUsed", totalTokensUsed);
     obj->setProperty ("promptTokensUsed", promptTokensUsed);
     obj->setProperty ("completionTokensUsed", completionTokensUsed);
     obj->setProperty ("estimatedCost", estimatedCost);
     obj->setProperty ("monthlyTokenLimit", monthlyTokenLimit);
 
-    juce::var breakdownObj = new juce::DynamicObject();
+    juce::DynamicObject::Ptr breakdownObj = new juce::DynamicObject();
     for (auto& [provider, usage] : providerBreakdown)
     {
-        juce::var providerObj = new juce::DynamicObject();
+        juce::DynamicObject::Ptr providerObj = new juce::DynamicObject();
         providerObj->setProperty ("promptTokens", usage.promptTokens);
         providerObj->setProperty ("completionTokens", usage.completionTokens);
         providerObj->setProperty ("cost", usage.cost);
-        breakdownObj->setProperty (provider, providerObj);
+        breakdownObj->setProperty (provider, juce::var (providerObj.get()));
     }
-    obj->setProperty ("providerBreakdown", breakdownObj);
+    obj->setProperty ("providerBreakdown", juce::var (breakdownObj.get()));
 
     juce::File file = getDataFile();
     file.getParentDirectory().createDirectory();
     juce::FileOutputStream stream (file);
     if (stream.openedOk())
     {
-        juce::JSON::writeToStream (stream, obj, false, 0);
+        juce::var json (obj.get());
+        juce::JSON::writeToStream (stream, json, false, 0);
     }
 }
 
