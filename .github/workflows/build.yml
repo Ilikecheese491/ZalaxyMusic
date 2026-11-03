@@ -23,42 +23,52 @@ jobs:
         submodules: recursive
 
     - name: Verify JUCE submodule
+      shell: pwsh
       run: |
         cd JUCE
-        echo "JUCE commit: $(git rev-parse --short HEAD)"
-        git describe --tags 2>$null || echo "No tag at this commit (detached HEAD)"
-        ls modules
-      shell: pwsh
+        $commit = git rev-parse --short HEAD
+        echo "JUCE commit: $commit"
+        $tag = git describe --tags 2>$null
+        if ($LASTEXITCODE -eq 0) { echo "JUCE tag: $tag" }
+        else { echo "No tag at this commit (detached HEAD)" }
+        echo "Modules found: $(ls modules | Measure-Object | % { $_.Count })"
 
     - name: Setup CMake
       uses: jwlawson/actions-setup-cmake@v2
       with:
         cmake-version: '3.28'
 
+    - name: Setup MSVC environment
+      uses: ilammy/msvc-dev-cmd@v1
+      with:
+        arch: x64
+
     - name: Check build tools
+      shell: pwsh
       run: |
         ninja --version
         cmake --version
-        # Verify MSVC is available
-        & "${env:VCToolsInstallDir}bin\Hostx64\x64\cl.exe" 2>&1 | Select-String "Version"
-      shell: pwsh
+        cl 2>&1 | Select-String "Version"
 
-    - name: Configure CMake (MSVC)
+    - name: Configure CMake (Ninja + MSVC)
+      shell: pwsh
       run: |
-        cmake -B build -G "Visual Studio 17 2022" -A x64 `
+        cmake -B build -G Ninja `
           -DCMAKE_BUILD_TYPE=Release `
+          -DCMAKE_C_COMPILER=cl `
+          -DCMAKE_CXX_COMPILER=cl `
           -DJUCE_DIR="${{ github.workspace }}/JUCE" `
           -DVST3_SDK_PATH="" `
           .
-      shell: pwsh
 
     - name: Build
-      run: cmake --build build --config Release --parallel
       shell: pwsh
+      run: cmake --build build --config Release --parallel
 
     - name: Verify VST3 output
+      shell: pwsh
       run: |
-        $vst3Path = "build/bin/Release/ZalaxyMusic.vst3/Contents/x86_64-win/ZalaxyMusic.vst3"
+        $vst3Path = "build/bin/ZalaxyMusic.vst3/Contents/x86_64-win/ZalaxyMusic.vst3"
         if (Test-Path $vst3Path) {
           Write-Host "VST3 built successfully at $vst3Path!"
         } else {
@@ -66,13 +76,12 @@ jobs:
           Get-ChildItem -Recurse build/bin
           exit 1
         }
-      shell: pwsh
 
     - name: Upload VST3 artifact
       uses: actions/upload-artifact@v4
       with:
         name: ZalaxyMusic-Windows-VST3
-        path: build/bin/Release/ZalaxyMusic.vst3/
+        path: build/bin/ZalaxyMusic.vst3/
         retention-days: 30
 
   build-test:
@@ -91,21 +100,28 @@ jobs:
       with:
         cmake-version: '3.28'
 
-    - name: Configure CMake with Tests (MSVC)
+    - name: Setup MSVC environment
+      uses: ilammy/msvc-dev-cmd@v1
+      with:
+        arch: x64
+
+    - name: Configure CMake with Tests (Ninja + MSVC)
+      shell: pwsh
       run: |
-        cmake -B build -G "Visual Studio 17 2022" -A x64 `
+        cmake -B build -G Ninja `
           -DCMAKE_BUILD_TYPE=Debug `
+          -DCMAKE_C_COMPILER=cl `
+          -DCMAKE_CXX_COMPILER=cl `
           -DJUCE_DIR="${{ github.workspace }}/JUCE" `
           -DVST3_SDK_PATH="" `
           .
-      shell: pwsh
 
     - name: Build Tests
-      run: cmake --build build --config Debug --parallel
       shell: pwsh
+      run: cmake --build build --config Debug --parallel
 
     - name: Run Tests
+      shell: pwsh
       run: |
         cd build
         ctest --output-on-failure -C Debug
-      shell: pwsh
