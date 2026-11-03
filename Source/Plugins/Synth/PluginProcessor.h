@@ -48,6 +48,7 @@ public:
     AudioEngine& getAudioEngine() { return audioEngine; }
     PresetManager& getPresetManager() { return presetManager; }
     AIProvider& getAIProvider() { return cloudAIProvider; }
+    CloudAIProvider& getCloudAIProvider() { return cloudAIProvider; }
     ReferenceAnalyzer& getReferenceAnalyzer() { return referenceAnalyzer; }
     SubscriptionManager& getSubscriptionManager() { return subscriptionManager; }
     UsageTracker& getUsageTracker() { return usageTracker; }
