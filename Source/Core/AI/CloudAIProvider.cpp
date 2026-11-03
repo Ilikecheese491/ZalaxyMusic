@@ -281,10 +281,13 @@ void CloudAIProvider::sendRequest (const juce::String& endpoint, const juce::Str
     juce::URL url (endpoint);
 
     juce::URL::InputStreamOptions options (juce::URL::ParameterHandling::inAddress);
-    options.withHeaders ({"Content-Type", "application/json"});
 
+    juce::String extraHeaders = "Content-Type: application/json";
     if (hasValidAPIKey())
-        options.withHeaders ({"Authorization", "Bearer " + getAPIKey (currentProviderName)});
+        extraHeaders += "\r\nAuthorization: Bearer " + getAPIKey (currentProviderName);
+
+    // Compatible with older JUCE versions:
+    options = options.withExtraHeaders (extraHeaders);
 
     auto stream = url.withPOSTData (body).createInputStream (options);
 
