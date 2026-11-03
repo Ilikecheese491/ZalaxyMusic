@@ -189,6 +189,7 @@ add_library(zalaxy_ui STATIC
     Source/UI/Panels/AISoundDesignPanel.cpp
     Source/UI/Panels/AssistantPanel.cpp
     Source/UI/Panels/SettingsPanel.cpp
+    Source/UI/Panels/AboutPanel.cpp
     Source/UI/Theme/ZalaxyTheme.cpp
     Source/UI/Components/VisualizationEngine.cpp
 )

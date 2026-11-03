@@ -34,6 +34,7 @@ private:
 
     juce::Label licenseStatusLabel;
 
+    void updateLicenseStatus();
     void openURL (const juce::String& url);
     void showLicenseDialog();
 
