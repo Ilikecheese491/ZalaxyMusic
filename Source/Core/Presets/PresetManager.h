@@ -1,7 +1,7 @@
 #pragma once
 
 #include "JuceModules.h"
-#include "ParameterManager.h"
+#include "Core/Parameters/ParameterManager.h"
 #include "Core/Audio/AudioEngine.h"
 #include "PresetFormat.h"
 
@@ -53,7 +53,7 @@ private:
         juce::String name;
         juce::File file;
         bool isFactory = false;
-        PresetFormat::PresetMetadata metadata;
+        PresetMetadata metadata;
     };
 
     ParameterManager& parameterManager;

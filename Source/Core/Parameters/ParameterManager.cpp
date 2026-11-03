@@ -61,7 +61,7 @@ void ParameterManager::removeParameterListener (const juce::String& paramID, juc
     apvts.removeParameterListener (paramID, listener);
 }
 
-void ParameterManager::saveState (juce::MemoryOutputStream& stream) const
+void ParameterManager::saveState (juce::MemoryOutputStream& stream)
 {
     auto state = apvts.copyState();
     std::unique_ptr<juce::XmlElement> xml (state.createXml());
@@ -133,7 +133,6 @@ std::unique_ptr<juce::AudioProcessorValueTreeState::ParameterLayout> ParameterMa
 
         if (param)
         {
-            param->setAutomatable (paramInfo.isAutomatable);
             layout->add (std::unique_ptr<juce::RangedAudioParameter> (param));
         }
     }

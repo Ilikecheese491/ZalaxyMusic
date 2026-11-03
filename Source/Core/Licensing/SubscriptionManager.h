@@ -57,8 +57,8 @@ private:
     LicenseTier currentTier = LicenseTier::Free;
     juce::String licenseKey;
     juce::String userEmail;
-    int64 trialStartTime = 0;
-    int64 licenseExpiryTime = 0;
+    int64_t trialStartTime = 0;
+    int64_t licenseExpiryTime = 0;
     int trialDays = 14;
 
     // RSA public key for license verification (embedded)
@@ -70,7 +70,7 @@ private:
     juce::File getDataFile() const;
     bool parseLicenseKey (const juce::String& key);
     bool checkExpiration();
-    int64 getCurrentTimeMs() const;
+    int64_t getCurrentTimeMs() const;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SubscriptionManager)
 };

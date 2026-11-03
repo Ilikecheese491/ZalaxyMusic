@@ -30,7 +30,7 @@ public:
     void removeParameterListener (const juce::String& paramID, juce::AudioProcessorValueTreeState::Listener* listener);
 
     // State management
-    void saveState (juce::MemoryOutputStream& stream) const;
+    void saveState (juce::MemoryOutputStream& stream);
     void loadState (juce::MemoryInputStream& stream);
 
     // Reset to defaults

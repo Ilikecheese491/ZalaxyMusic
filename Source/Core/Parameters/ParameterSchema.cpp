@@ -3,10 +3,10 @@
 namespace zalaxy
 {
 
-juce::Array<ParameterSchema::ParameterInfo> ParameterSchema::allParameters;
+juce::Array<ParameterInfo> ParameterSchema::allParameters;
 bool ParameterSchema::initialized = false;
 
-juce::Array<ParameterSchema::ParameterInfo> ParameterSchema::createParameterList()
+juce::Array<ParameterInfo> ParameterSchema::createParameterList()
 {
     juce::Array<ParameterInfo> params;
 
@@ -237,7 +237,7 @@ juce::Array<ParameterSchema::ParameterInfo> ParameterSchema::createParameterList
     return params;
 }
 
-const juce::Array<ParameterSchema::ParameterInfo>& ParameterSchema::getAllParameters()
+const juce::Array<ParameterInfo>& ParameterSchema::getAllParameters()
 {
     if (!initialized)
     {
@@ -247,7 +247,7 @@ const juce::Array<ParameterSchema::ParameterInfo>& ParameterSchema::getAllParame
     return allParameters;
 }
 
-const ParameterSchema::ParameterInfo* ParameterSchema::getParameterInfo (const juce::String& paramID)
+const ParameterInfo* ParameterSchema::getParameterInfo (const juce::String& paramID)
 {
     const auto& params = getAllParameters();
     for (const auto& p : params)

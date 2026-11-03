@@ -1,7 +1,5 @@
 #include "SubscriptionManager.h"
-#include <openssl/evp.h>
-#include <openssl/pem.h>
-#include <openssl/rsa.h>
+#include <cstdint>
 
 namespace zalaxy
 {
@@ -103,8 +101,8 @@ bool SubscriptionManager::isTrialActive() const
     if (trialStartTime == 0)
         return false;
 
-    int64 now = getCurrentTimeMs();
-    int64 trialEndTime = trialStartTime + (int64)trialDays * 24 * 60 * 60 * 1000;
+    int64_t now = getCurrentTimeMs();
+    int64_t trialEndTime = trialStartTime + (int64_t)trialDays * 24 * 60 * 60 * 1000;
     return now < trialEndTime;
 }
 
@@ -123,9 +121,9 @@ int SubscriptionManager::getTrialDaysRemaining() const
     if (!isTrialActive())
         return 0;
 
-    int64 now = getCurrentTimeMs();
-    int64 trialEndTime = trialStartTime + (int64)trialDays * 24 * 60 * 60 * 1000;
-    int64 remainingMs = trialEndTime - now;
+    int64_t now = getCurrentTimeMs();
+    int64_t trialEndTime = trialStartTime + (int64_t)trialDays * 24 * 60 * 60 * 1000;
+    int64_t remainingMs = trialEndTime - now;
     return (int)juce::jmax (0, remainingMs / (24 * 60 * 60 * 1000));
 }
 
@@ -158,7 +156,7 @@ juce::String SubscriptionManager::getExpirationDate() const
 
     if (currentTier == LicenseTier::Free && isTrialActive())
     {
-        int64 trialEndTime = trialStartTime + (int64)trialDays * 24 * 60 * 60 * 1000;
+        int64_t trialEndTime = trialStartTime + (int64_t)trialDays * 24 * 60 * 60 * 1000;
         juce::Time t (trialEndTime);
         return "Trial ends: " + t.toString (true, true, false, false);
     }
@@ -172,8 +170,8 @@ void SubscriptionManager::save()
     obj->setProperty ("tier", (int)currentTier);
     obj->setProperty ("licenseKey", licenseKey);
     obj->setProperty ("userEmail", userEmail);
-    obj->setProperty ("trialStartTime", (int64)trialStartTime);
-    obj->setProperty ("licenseExpiryTime", (int64)licenseExpiryTime);
+    obj->setProperty ("trialStartTime", (int64_t)trialStartTime);
+    obj->setProperty ("licenseExpiryTime", (int64_t)licenseExpiryTime);
     obj->setProperty ("trialDays", trialDays);
 
     juce::File file = getDataFile();
@@ -202,8 +200,8 @@ void SubscriptionManager::load()
     currentTier = (LicenseTier)obj->getProperty ("tier", 0);
     licenseKey = obj->getProperty ("licenseKey", "").toString();
     userEmail = obj->getProperty ("userEmail", "").toString();
-    trialStartTime = obj->getProperty ("trialStartTime", (int64)0);
-    licenseExpiryTime = obj->getProperty ("licenseExpiryTime", (int64)0);
+    trialStartTime = obj->getProperty ("trialStartTime", (int64_t)0);
+    licenseExpiryTime = obj->getProperty ("licenseExpiryTime", (int64_t)0);
     trialDays = obj->getProperty ("trialDays", 14);
 
     if (!licenseKey.isEmpty())
@@ -235,7 +233,7 @@ bool SubscriptionManager::verifyLicenseSignature (const juce::String& key, const
 
 juce::String SubscriptionManager::generateLicenseKey (LicenseTier tier, const juce::String& userEmail, int validityDays)
 {
-    int64 expiry = getCurrentTimeMs() + (int64)validityDays * 24 * 60 * 60 * 1000;
+    int64_t expiry = getCurrentTimeMs() + (int64_t)validityDays * 24 * 60 * 60 * 1000;
     juce::String payload = juce::String ((int)tier) + "|" + userEmail + "|" + juce::String (expiry);
     juce::String encoded = payload.toBase64Encoding();
     return "ZALX-" + encoded;
@@ -257,7 +255,7 @@ bool SubscriptionManager::checkExpiration()
     return false;
 }
 
-int64 SubscriptionManager::getCurrentTimeMs() const
+int64_t SubscriptionManager::getCurrentTimeMs() const
 {
     return juce::Time::getCurrentTime().toMilliseconds();
 }
