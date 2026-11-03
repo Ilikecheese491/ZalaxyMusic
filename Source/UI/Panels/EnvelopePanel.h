@@ -1,6 +1,6 @@
 #pragma once
 
-#include <JuceHeader.h>
+#include "Common/JuceModules.h"
 #include "UI/Theme/ZalaxyTheme.h"
 #include "UI/Components/ParameterSlider.h"
 #include "Core/Parameters/ParameterManager.h"

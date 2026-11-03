@@ -1,7 +1,7 @@
 #pragma once
 
 #include "AIProvider.h"
-#include <JuceHeader.h>
+#include "Common/JuceModules.h"
 
 namespace zalaxy
 {

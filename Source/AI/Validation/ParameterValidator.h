@@ -1,6 +1,6 @@
 #pragma once
 
-#include <JuceHeader.h>
+#include "Common/JuceModules.h"
 #include "Core/Parameters/ParameterSchema.h"
 
 namespace zalaxy

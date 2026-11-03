@@ -85,6 +85,7 @@ add_library(zalaxy_core STATIC
 
 target_include_directories(zalaxy_core PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/Source/Core
+    ${CMAKE_CURRENT_SOURCE_DIR}/Source/Common
 )
 
 target_link_libraries(zalaxy_core PUBLIC
@@ -119,6 +120,7 @@ add_library(zalaxy_ai STATIC
 
 target_include_directories(zalaxy_ai PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/Source/AI
+    ${CMAKE_CURRENT_SOURCE_DIR}/Source/Common
 )
 
 target_link_libraries(zalaxy_ai PRIVATE
@@ -139,6 +141,7 @@ add_library(zalaxy_analysis STATIC
 
 target_include_directories(zalaxy_analysis PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/Source/Analysis
+    ${CMAKE_CURRENT_SOURCE_DIR}/Source/Common
 )
 
 target_link_libraries(zalaxy_analysis PRIVATE
@@ -170,6 +173,7 @@ add_library(zalaxy_ui STATIC
 
 target_include_directories(zalaxy_ui PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/Source/UI
+    ${CMAKE_CURRENT_SOURCE_DIR}/Source/Common
 )
 
 target_link_libraries(zalaxy_ui PRIVATE

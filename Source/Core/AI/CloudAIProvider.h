@@ -1,6 +1,6 @@
 #pragma once
 
-#include <JuceHeader.h>
+#include "Common/JuceModules.h"
 #include "Core/AI/Providers/AIProvider.h"
 
 namespace zalaxy

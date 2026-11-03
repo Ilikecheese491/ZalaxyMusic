@@ -1,6 +1,6 @@
 #pragma once
 
-#include <JuceHeader.h>
+#include "Common/JuceModules.h"
 #include "Analysis/Spectral/SpectralAnalyzer.h"
 #include "Analysis/AudioReference/AudioReferenceProcessor.h"
 #include "Core/Parameters/ParameterSchema.h"

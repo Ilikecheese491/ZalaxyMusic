@@ -1,6 +1,6 @@
 #pragma once
 
-#include <JuceHeader.h>
+#include "Common/JuceModules.h"
 #include "Analysis/FFT/FFTAnalyzer.h"
 
 namespace zalaxy
