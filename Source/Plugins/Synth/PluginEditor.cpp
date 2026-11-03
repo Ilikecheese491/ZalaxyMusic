@@ -7,7 +7,6 @@ namespace zalaxy
 PluginEditor::PluginEditor (PluginProcessor& p)
     : AudioProcessorEditor (&p)
     , processor (p)
-    , theme (processor.getParameterManager())
 {
     // Set plugin size
     setSize (1200, 800);
@@ -124,8 +123,13 @@ void PluginEditor::paint (juce::Graphics& g)
     // Fill background with cosmic theme color
     g.fillAll (theme.getColor (ZalaxyTheme::ColorId::Background));
 
-    // Draw subtle grid pattern
-    theme.drawCosmicGrid (g, getLocalBounds());
+    // Draw a subtle grid using the theme's existing grid color.
+    g.setColour (theme.getColor (ZalaxyTheme::ColorId::GridColor).withAlpha (0.16f));
+    constexpr int gridSpacing = 32;
+    for (int x = 0; x < getWidth(); x += gridSpacing)
+        g.drawVerticalLine (x, 0.0f, static_cast<float> (getHeight()));
+    for (int y = 0; y < getHeight(); y += gridSpacing)
+        g.drawHorizontalLine (y, 0.0f, static_cast<float> (getWidth()));
 }
 
 void PluginEditor::resized()
