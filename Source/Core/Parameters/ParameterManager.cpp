@@ -110,8 +110,6 @@ std::unique_ptr<juce::AudioProcessorValueTreeState::ParameterLayout> ParameterMa
         if (paramInfo.isMetaParameter)
             continue; // Skip meta parameters (UI-only)
 
-        juce::RangedAudioParameter* param = nullptr;
-
         if (paramInfo.interval > 0.0f)
         {
             // Discrete parameter (choice/enum)
@@ -122,19 +120,16 @@ std::unique_ptr<juce::AudioProcessorValueTreeState::ParameterLayout> ParameterMa
                 float val = paramInfo.minValue + i * paramInfo.interval;
                 choices.add (juce::String (val, 2));
             }
-            param = new juce::AudioParameterChoice (paramInfo.id, paramInfo.name, choices,
+            auto param = std::make_unique<juce::AudioParameterChoice> (paramInfo.id, paramInfo.name, choices,
                                                      static_cast<int> ((paramInfo.defaultValue - paramInfo.minValue) / paramInfo.interval));
+            layout->add (std::move (param));
         }
         else
         {
             // Continuous parameter
             auto range = juce::NormalisableRange<float> (paramInfo.minValue, paramInfo.maxValue, 0.001f, 1.0f);
-            param = new juce::AudioParameterFloat (paramInfo.id, paramInfo.name, range, paramInfo.defaultValue);
-        }
-
-        if (param)
-        {
-            layout->add (std::unique_ptr<juce::RangedAudioParameter> (param));
+            auto param = std::make_unique<juce::AudioParameterFloat> (paramInfo.id, paramInfo.name, range, paramInfo.defaultValue);
+            layout->add (std::move (param));
         }
     }
 

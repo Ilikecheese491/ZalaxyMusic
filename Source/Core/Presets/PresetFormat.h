@@ -52,8 +52,8 @@ public:
 private:
     static juce::ValueTree createMetadataTree (const PresetMetadata& metadata);
     static PresetMetadata parseMetadataTree (const juce::ValueTree& tree);
-    static bool writeBinaryHeader (juce::FileOutputStream& stream);
-    static bool readBinaryHeader (juce::FileInputStream& stream);
+    static bool writeBinaryHeader (juce::OutputStream& stream);
+    static bool readBinaryHeader (juce::InputStream& stream);
 };
 
 } // namespace zalaxy

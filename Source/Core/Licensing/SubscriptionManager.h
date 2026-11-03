@@ -70,7 +70,7 @@ private:
     juce::File getDataFile() const;
     bool parseLicenseKey (const juce::String& key);
     bool checkExpiration();
-    int64_t getCurrentTimeMs() const;
+    static int64_t getCurrentTimeMs();
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SubscriptionManager)
 };

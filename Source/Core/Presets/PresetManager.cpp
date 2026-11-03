@@ -559,7 +559,13 @@ void PresetManager::addPresetEntry (const PresetEntry& entry)
         }
     }
 
-    presets.insert (insertIndex, entry);
+    // Use add and then move to position to avoid JUCE 9.0.4 Array::insert template issues
+    presets.add (entry);
+    // Move the newly added element to the correct position
+    for (int i = presets.size() - 1; i > insertIndex; --i)
+    {
+        std::swap (presets.getReference (i), presets.getReference (i - 1));
+    }
 }
 
 int PresetManager::findPresetByName (const juce::String& name) const

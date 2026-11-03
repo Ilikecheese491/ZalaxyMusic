@@ -197,11 +197,11 @@ void SubscriptionManager::load()
     if (!obj)
         return;
 
-    currentTier = (LicenseTier)obj->getProperty ("tier");
+    currentTier = static_cast<LicenseTier> (static_cast<int> (obj->getProperty ("tier")));
     licenseKey = obj->getProperty ("licenseKey").toString();
     userEmail = obj->getProperty ("userEmail").toString();
-    trialStartTime = obj->getProperty ("trialStartTime");
-    licenseExpiryTime = obj->getProperty ("licenseExpiryTime");
+    trialStartTime = (int64_t)obj->getProperty ("trialStartTime");
+    licenseExpiryTime = (int64_t)obj->getProperty ("licenseExpiryTime");
     trialDays = (int)obj->getProperty ("trialDays");
 
     if (!licenseKey.isEmpty())
@@ -219,7 +219,7 @@ bool SubscriptionManager::parseLicenseKey (const juce::String& key)
     if (parts.size() < 3)
         return false;
 
-    currentTier = (LicenseTier)parts[0].getIntValue();
+    currentTier = static_cast<LicenseTier> (parts[0].getIntValue());
     userEmail = parts[1];
     licenseExpiryTime = parts[2].getLargeIntValue();
 
@@ -255,7 +255,7 @@ bool SubscriptionManager::checkExpiration()
     return false;
 }
 
-int64_t SubscriptionManager::getCurrentTimeMs() const
+int64_t SubscriptionManager::getCurrentTimeMs()
 {
     return juce::Time::getCurrentTime().toMilliseconds();
 }
