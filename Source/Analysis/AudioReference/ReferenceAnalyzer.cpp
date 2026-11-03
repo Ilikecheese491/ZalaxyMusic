@@ -17,51 +17,60 @@ juce::var ReferenceAnalyzer::analyzeReference (const juce::File& wavFile, double
     if (!processor->loadFile (wavFile))
     {
         obj->setProperty ("error", "Failed to load audio file");
-        return obj;
+        return juce::var (obj.get());
     }
 
     processor->processRange (startTime, endTime);
 
-    // Process audio for spectral features
     const auto& buffer = processor->getBuffer();
-    int numSamples = buffer.getNumSamples();
-    int channel = 0; // Use first channel for analysis
+    const int numSamples = buffer.getNumSamples();
+    const int channel = 0;
 
-    spectralAnalyzer->processBlock (buffer.getReadPointer (channel), numSamples, static_cast<float> (processor->getSampleRate()));
+    if (buffer.getNumChannels() == 0 || numSamples == 0)
+    {
+        obj->setProperty ("error", "Audio file contains no samples");
+        return juce::var (obj.get());
+    }
 
-    auto features = spectralAnalyzer->getFeatures();
-    auto params = mapFeaturesToParameters (features);
+    spectralAnalyzer->processBlock (
+        buffer.getReadPointer (channel),
+        numSamples,
+        static_cast<float> (processor->getSampleRate())
+    );
 
+    const auto features = spectralAnalyzer->getFeatures();
+    const auto params = mapFeaturesToParameters (features);
     obj->setProperty ("explanation", generateExplanation (features));
 
     juce::Array<juce::var> paramsArray;
-    for (auto& param : params)
+    for (const auto& param : params)
     {
-        juce::DynamicObject::Ptr p = new juce::DynamicObject();
-        p->setProperty ("id", param.first);
-        p->setProperty ("value", param.second);
-        paramsArray.add (p);
+        juce::DynamicObject::Ptr parameter = new juce::DynamicObject();
+        parameter->setProperty ("id", param.first);
+        parameter->setProperty ("value", param.second);
+        paramsArray.add (juce::var (parameter.get()));
     }
-    obj->setProperty ("parameters", paramsArray);
 
-    return obj;
+    obj->setProperty ("parameters", juce::var (paramsArray));
+    return juce::var (obj.get());
 }
 
 juce::Array<std::pair<juce::String, float>> ReferenceAnalyzer::mapFeaturesToParameters (const SpectralFeatures& features)
 {
     juce::Array<std::pair<juce::String, float>> result;
 
-    // Map spectral features to synth parameters (simplified heuristic)
-    result.add ({"osc1_waveform", features.brightness > 0.5f ? 1.0f : 0.0f}); // Saw for bright, sine for dull
+    result.add ({"osc1_waveform", features.brightness > 0.5f ? 1.0f : 0.0f});
     result.add ({"osc1_pitch", 0.5f});
     result.add ({"osc1_level", 0.8f});
 
-    result.add ({"osc2_waveform", features.noisiness > 0.5f ? 2.0f : 1.0f}); // Noise for noisy
-    result.add ({"osc2_pitch", features.fundamental / 440.0f * 0.5f + 0.5f}); // Relative to A4
+    result.add ({"osc2_waveform", features.noisiness > 0.5f ? 2.0f : 1.0f});
+    result.add ({"osc2_pitch", features.fundamental / 440.0f * 0.5f + 0.5f});
     result.add ({"osc2_level", 0.5f});
 
-    result.add ({"filter_type", features.centroid > 2000 ? 1.0f : 0.0f}); // HP for bright
-    result.add ({"filter_cutoff", juce::jmap (features.centroid, 100.0f, 8000.0f, 0.2f, 0.9f)});
+    result.add ({"filter_type", features.centroid > 2000.0f ? 1.0f : 0.0f});
+    result.add ({"filter_cutoff",
+                 juce::jlimit (0.2f, 0.9f,
+                               juce::jmap (features.centroid, 100.0f, 8000.0f, 0.2f, 0.9f))});
     result.add ({"filter_resonance", features.flatness * 0.5f});
     result.add ({"filter_env_amount", 0.4f});
 
@@ -86,7 +95,6 @@ juce::String ReferenceAnalyzer::generateExplanation (const SpectralFeatures& fea
     desc << ", flux=" << juce::String (features.flux, 2);
     desc << ", fundamental=" << juce::String (features.fundamental, 0) << "Hz";
     desc << ". Mapped to synth parameters.";
-
     return desc;
 }
 

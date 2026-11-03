@@ -1,5 +1,7 @@
 #include "SpectralAnalyzer.h"
 
+#include <vector>
+
 namespace zalaxy
 {
 
@@ -30,26 +32,70 @@ void SpectralAnalyzer::getMagnitudeSpectrum (float* output, int numBins) const
 
 float SpectralAnalyzer::computeRolloff (float threshold) const
 {
+    const int fftSize = fftAnalyzer->getFFTSize();
+    const int numBins = fftSize / 2;
+
+    if (numBins <= 1)
+        return 0.0f;
+
+    std::vector<float> magnitudes (static_cast<size_t> (numBins));
+    fftAnalyzer->getMagnitudeSpectrum (magnitudes.data(), numBins);
+
     float totalEnergy = 0.0f;
-    int numBins = fftAnalyzer->getFFTSize() / 2;
+    for (int i = 1; i < numBins; ++i)
+    {
+        const float mag = magnitudes[static_cast<size_t> (i)];
+        totalEnergy += mag * mag;
+    }
 
-    for (int i = 0; i < numBins; ++i)
-        totalEnergy += fftAnalyzer->getMagnitudeSpectrum(nullptr, 0)[i]; // Need access to magnitude
+    if (totalEnergy <= 0.0f)
+        return 0.0f;
 
-    // Stub implementation
-    return 0.7f;
+    threshold = juce::jlimit (0.0f, 1.0f, threshold);
+    const float targetEnergy = threshold * totalEnergy;
+    float cumulativeEnergy = 0.0f;
+
+    for (int i = 1; i < numBins; ++i)
+    {
+        const float mag = magnitudes[static_cast<size_t> (i)];
+        cumulativeEnergy += mag * mag;
+        if (cumulativeEnergy >= targetEnergy)
+            return static_cast<float> (i) * sampleRate / fftSize;
+    }
+
+    return static_cast<float> (numBins - 1) * sampleRate / fftSize;
 }
 
 float SpectralAnalyzer::computeBrightness() const
 {
-    // Ratio of high-frequency energy to total energy
-    return 0.5f;
+    const int fftSize = fftAnalyzer->getFFTSize();
+    const int numBins = fftSize / 2;
+
+    if (numBins <= 1)
+        return 0.0f;
+
+    std::vector<float> magnitudes (static_cast<size_t> (numBins));
+    fftAnalyzer->getMagnitudeSpectrum (magnitudes.data(), numBins);
+
+    float totalEnergy = 0.0f;
+    float highFrequencyEnergy = 0.0f;
+
+    for (int i = 1; i < numBins; ++i)
+    {
+        const float mag = magnitudes[static_cast<size_t> (i)];
+        const float energy = mag * mag;
+        totalEnergy += energy;
+
+        if (i >= numBins / 2)
+            highFrequencyEnergy += energy;
+    }
+
+    return totalEnergy > 0.0f ? highFrequencyEnergy / totalEnergy : 0.0f;
 }
 
 float SpectralAnalyzer::computeNoisiness() const
 {
-    // Inverse of flatness (tonal vs noisy)
-    return 1.0f - features.flatness;
+    return features.flatness;
 }
 
 } // namespace zalaxy
