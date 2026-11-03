@@ -26,8 +26,9 @@ jobs:
       run: |
         cd JUCE
         echo "JUCE commit: $(git rev-parse --short HEAD)"
-        git describe --tags 2>/dev/null || echo "No tag at this commit (detached HEAD)"
+        git describe --tags 2>$null || echo "No tag at this commit (detached HEAD)"
         ls modules
+      shell: pwsh
 
     - name: Setup CMake
       uses: jwlawson/actions-setup-cmake@v2
