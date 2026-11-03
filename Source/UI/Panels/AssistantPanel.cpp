@@ -78,7 +78,10 @@ void AssistantPanel::paint (juce::Graphics& g)
     g.setColour (theme.getColor (ZalaxyTheme::ColorId::BorderSubtle));
     g.drawRoundedRectangle (bounds, theme.getRadius ("medium"), 1.0f);
     g.setColour (theme.getColor (ZalaxyTheme::ColorId::AccentSecondary));
-    g.fillRect (bounds.getX() + 8, bounds.getY() + 2, bounds.getWidth() - 16, 2);
+    g.fillRect (juce::Rectangle<float> (bounds.getX() + 8.0f,
+                                    bounds.getY() + 2.0f,
+                                    bounds.getWidth() - 16.0f,
+                                    2.0f));
 }
 
 void AssistantPanel::resized()
