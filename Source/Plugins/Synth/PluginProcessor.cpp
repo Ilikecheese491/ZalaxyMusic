@@ -11,9 +11,9 @@ PluginProcessor::PluginProcessor()
     , audioEngine (parameterManager)
     , presetManager (parameterManager, audioEngine)
     , usageTracker()
+    , subscriptionManager()
     , cloudAIProvider (usageTracker, subscriptionManager)
     , audioReferenceProcessor (parameterManager, audioEngine)
-    , subscriptionManager()
 {
     // Initialize parameter manager (creates all parameters)
     parameterManager.initializeParameters();

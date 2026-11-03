@@ -1,6 +1,6 @@
 #include "CloudAIProvider.h"
 #include "UsageTracker.h"
-#include "SubscriptionManager.h"
+#include "Licensing/SubscriptionManager.h"
 
 namespace zalaxy
 {

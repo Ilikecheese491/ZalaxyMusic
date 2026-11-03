@@ -62,9 +62,9 @@ private:
     AudioEngine audioEngine;
     PresetManager presetManager;
     UsageTracker usageTracker;
+    SubscriptionManager subscriptionManager;
     CloudAIProvider cloudAIProvider;
     AudioReferenceProcessor audioReferenceProcessor;
-    SubscriptionManager subscriptionManager;
 
     // State
     double currentSampleRate = 44100.0;
