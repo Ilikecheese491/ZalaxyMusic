@@ -3,6 +3,8 @@
 #include "JuceModules.h"
 #include "UI/Theme/ZalaxyTheme.h"
 #include "Core/Audio/AudioEngine.h"
+#include <array>
+#include <vector>
 
 namespace zalaxy
 {
@@ -35,13 +37,18 @@ private:
     };
 
     int currentMode = Waveform;
-    juce::Array<float> waveformBuffer;
-    juce::Array<float> spectrumBuffer;
-    juce::Array<float> spectrogramHistory;
+    std::vector<float> waveformBuffer;
+    std::vector<float> spectrumBuffer;
+    std::vector<float> spectrogramHistory;
 
     static constexpr int waveformSize = 1024;
     static constexpr int spectrumSize = 512;
     static constexpr int spectrogramHeight = 128;
+    static constexpr int fftOrder = 10;
+    static constexpr int fftSize = 1 << fftOrder;
+
+    juce::dsp::FFT fft { fftOrder };
+    std::array<float, fftSize * 2> fftData {};
 
     juce::Path waveformPath;
     juce::Path spectrumPath;

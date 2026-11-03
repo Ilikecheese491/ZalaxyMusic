@@ -20,7 +20,6 @@ public:
 
     void setParameterID (const juce::String& newParamID);
 
-    juce::String getTooltip() const override { return tooltip; }
 
 private:
     juce::String paramID;
@@ -28,7 +27,6 @@ private:
     bool isHorizontal;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> attachment;
 
-    juce::String tooltip;
     bool isHovering = false;
 
     juce::Colour trackColor;

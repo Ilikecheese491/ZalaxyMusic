@@ -20,7 +20,7 @@ ParameterSlider::ParameterSlider (const juce::String& pid, ZalaxyTheme& t, juce:
         setSize (30, 120);
 
     attachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment> (apvts, paramID, *this);
-    tooltip = paramID;
+    setTooltip (paramID);
     updateColors();
 }
 
@@ -121,6 +121,7 @@ void ParameterSlider::mouseExit (const juce::MouseEvent&)
 void ParameterSlider::setParameterID (const juce::String& newParamID)
 {
     paramID = newParamID;
+    setTooltip (newParamID);
     attachment.reset();
     updateColors();
     repaint();

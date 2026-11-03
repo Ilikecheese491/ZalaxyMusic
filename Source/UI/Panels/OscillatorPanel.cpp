@@ -60,7 +60,10 @@ void OscillatorPanel::paint (juce::Graphics& g)
 
     // Accent line at top
     g.setColour (theme.getColor (ZalaxyTheme::ColorId::OscillatorColor));
-    g.fillRect (bounds.getX() + 8, bounds.getY() + 2, bounds.getWidth() - 16, 2);
+    g.fillRect (juce::Rectangle<float> (bounds.getX() + 8.0f,
+                                         bounds.getY() + 2.0f,
+                                         bounds.getWidth() - 16.0f,
+                                         2.0f));
 }
 
 void OscillatorPanel::resized()

@@ -13,7 +13,6 @@ PluginProcessor::PluginProcessor()
     , usageTracker()
     , subscriptionManager()
     , cloudAIProvider (usageTracker, subscriptionManager)
-    , audioReferenceProcessor (parameterManager, audioEngine)
 {
     // Initialize parameter manager (creates all parameters)
     parameterManager.initializeParameters();
@@ -39,13 +38,11 @@ void PluginProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 
     audioEngine.prepare (sampleRate, samplesPerBlock);
     parameterManager.prepare (sampleRate);
-    audioReferenceProcessor.prepare (sampleRate);
 }
 
 void PluginProcessor::releaseResources()
 {
     audioEngine.release();
-    audioReferenceProcessor.release();
 }
 
 void PluginProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
@@ -56,8 +53,6 @@ void PluginProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::Midi
     // Process MIDI and generate audio
     audioEngine.processBlock (buffer, midiMessages);
 
-    // Process audio reference analysis if active (non-blocking)
-    audioReferenceProcessor.processIfNeeded();
 }
 
 void PluginProcessor::getStateInformation (juce::MemoryBlock& destData)
@@ -96,15 +91,11 @@ void PluginProcessor::onTextToPatchRequest (const juce::String& prompt)
 
 void PluginProcessor::onAudioAnalysisRequest (const juce::File& wavFile, double startTime, double endTime)
 {
-    // Called from UI thread - delegate to audio reference processor
-    audioReferenceProcessor.analyzeReference (wavFile, startTime, endTime, [this] (const juce::var& result)
-    {
-        // Handle analysis response on message thread
-        if (auto* editor = dynamic_cast<PluginEditor*> (getActiveEditor()))
-        {
-            editor->handleAnalysisResponse (result);
-        }
-    });
+    // ReferenceAnalyzer owns the file-loading and spectral-analysis workflow.
+    const auto result = referenceAnalyzer.analyzeReference (wavFile, startTime, endTime);
+
+    if (auto* editor = dynamic_cast<PluginEditor*> (getActiveEditor()))
+        editor->handleAnalysisResponse (result);
 }
 
 } // namespace zalaxy

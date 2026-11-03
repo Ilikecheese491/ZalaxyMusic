@@ -7,7 +7,7 @@
 #include "Core/Licensing/SubscriptionManager.h"
 #include "Core/AI/CloudAIProvider.h"
 #include "Core/AI/UsageTracker.h"
-#include "Analysis/AudioReference/AudioReferenceProcessor.h"
+#include "Analysis/AudioReference/ReferenceAnalyzer.h"
 
 namespace zalaxy
 {
@@ -48,7 +48,8 @@ public:
     AudioEngine& getAudioEngine() { return audioEngine; }
     PresetManager& getPresetManager() { return presetManager; }
     AIProvider& getAIProvider() { return cloudAIProvider; }
-    AudioReferenceProcessor& getAudioReferenceProcessor() { return audioReferenceProcessor; }
+    CloudAIProvider& getCloudAIProvider() { return cloudAIProvider; }
+    ReferenceAnalyzer& getReferenceAnalyzer() { return referenceAnalyzer; }
     SubscriptionManager& getSubscriptionManager() { return subscriptionManager; }
     UsageTracker& getUsageTracker() { return usageTracker; }
 
@@ -64,7 +65,7 @@ private:
     UsageTracker usageTracker;
     SubscriptionManager subscriptionManager;
     CloudAIProvider cloudAIProvider;
-    AudioReferenceProcessor audioReferenceProcessor;
+    ReferenceAnalyzer referenceAnalyzer;
 
     // State
     double currentSampleRate = 44100.0;

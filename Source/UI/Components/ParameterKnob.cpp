@@ -1,4 +1,5 @@
 #include "ParameterKnob.h"
+#include "Core/Parameters/ParameterSchema.h"
 
 namespace zalaxy
 {
@@ -12,15 +13,18 @@ ParameterKnob::ParameterKnob (const juce::String& pid, ZalaxyTheme& t, juce::Aud
     setRange (0.0, 1.0, 0.001);
     setVelocityModeParameters (2.0, 1, false, false);
     setScrollWheelEnabled (true);
-    setDoubleClickReturnValue (true);
 
     // Ensure minimum hit area
     setSize (theme.getRadius("small") * 2 + ColorScheme::knobMedium, ColorScheme::knobMedium + 30);
 
     attachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment> (apvts, paramID, *this);
 
-    // Tooltip from parameter name
-    tooltip = paramID;
+    // Use the parameter's schema default as its double-click reset value.
+    const auto* parameterInfo = ParameterSchema::getParameterInfo (paramID);
+    setDoubleClickReturnValue (true, parameterInfo != nullptr ? parameterInfo->defaultValue : getValue());
+
+    // Tooltip from parameter name (provided by JUCE's SettableTooltipClient).
+    setTooltip (paramID);
 
     updateColors();
 }
@@ -61,7 +65,9 @@ void ParameterKnob::drawKnob (juce::Graphics& g, float x, float y, float diamete
     if (isHover || isDown)
     {
         juce::DropShadow glow (valueColor.withAlpha (isDown ? 0.3f : 0.15f), 8, {0, 0});
-        glow.drawForPath (g, juce::Path().addEllipse (x + 2, y + 2, diameter - 4, diameter - 4));
+        juce::Path glowPath;
+        glowPath.addEllipse (x + 2, y + 2, diameter - 4, diameter - 4);
+        glow.drawForPath (g, glowPath);
     }
 
     // Track background
@@ -162,6 +168,7 @@ void ParameterKnob::mouseExit (const juce::MouseEvent&)
 void ParameterKnob::setParameterID (const juce::String& newParamID)
 {
     paramID = newParamID;
+    setTooltip (newParamID);
     attachment.reset();
     updateColors();
     repaint();

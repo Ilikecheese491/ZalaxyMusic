@@ -31,7 +31,9 @@ private:
     juce::HeapBlock<float> magnitude;
     juce::HeapBlock<float> phase;
     juce::HeapBlock<float> prevMagnitude;
+    juce::HeapBlock<float> averageMagnitude;
     std::vector<float> window;
+    float spectralFlux = 0.0f;
 
     void applyWindow();
 };

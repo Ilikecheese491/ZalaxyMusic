@@ -1,4 +1,5 @@
 #include "AISoundDesignPanel.h"
+#include "AI/Providers/AIProvider.h"
 
 namespace zalaxy
 {
@@ -42,13 +43,12 @@ void AISoundDesignPanel::createPromptSection()
     promptInput = std::make_unique<juce::TextEditor>();
     promptInput->setMultiLine (true);
     promptInput->setReturnKeyStartsNewLine (true);
-    promptInput->setPlaceholderText ("Describe your sound... e.g. \"bright bouncy pluck with short decay, soft attack, stereo movement\"");
+    promptInput->setTextToShowWhenEmpty ("Describe your sound... e.g. \"bright bouncy pluck with short decay, soft attack, stereo movement\"", theme.getColor (ZalaxyTheme::ColorId::TextMuted));
     promptInput->setFont (theme.getFont ("body"));
     promptInput->setColour (juce::TextEditor::backgroundColourId, theme.getColor (ZalaxyTheme::ColorId::Surface));
     promptInput->setColour (juce::TextEditor::textColourId, theme.getColor (ZalaxyTheme::ColorId::TextPrimary));
     promptInput->setColour (juce::TextEditor::outlineColourId, theme.getColor (ZalaxyTheme::ColorId::BorderDefault));
     promptInput->setColour (juce::TextEditor::focusedOutlineColourId, theme.getColor (ZalaxyTheme::ColorId::BorderFocus));
-    promptInput->setColour (juce::TextEditor::placeholderColourId, theme.getColor (ZalaxyTheme::ColorId::TextMuted));
 
     generateButton = std::make_unique<juce::TextButton> ("Generate Patch");
     generateButton->setColour (juce::TextButton::buttonColourId, theme.getColor (ZalaxyTheme::ColorId::AccentPrimary));
@@ -108,7 +108,10 @@ void AISoundDesignPanel::paint (juce::Graphics& g)
     g.setColour (theme.getColor (ZalaxyTheme::ColorId::BorderSubtle));
     g.drawRoundedRectangle (bounds, theme.getRadius ("medium"), 1.0f);
     g.setColour (theme.getColor (ZalaxyTheme::ColorId::AccentSecondary));
-    g.fillRect (bounds.getX() + 8, bounds.getY() + 2, bounds.getWidth() - 16, 2);
+    g.fillRect (juce::Rectangle<float> (bounds.getX() + 8.0f,
+                                    bounds.getY() + 2.0f,
+                                    bounds.getWidth() - 16.0f,
+                                    2.0f));
 }
 
 void AISoundDesignPanel::resized()
@@ -203,19 +206,39 @@ void AISoundDesignPanel::requestTextToPatch (const juce::String& prompt)
 
 void AISoundDesignPanel::requestAudioAnalysis()
 {
-    // Open file dialog for WAV
-    juce::FileChooser chooser ("Select WAV file to analyze",
-                                juce::File::getSpecialLocation (juce::File::userDocumentsDirectory),
-                                "*.wav");
-    if (chooser.browseForFileToOpen())
-    {
-        juce::File file = chooser.getResult();
-        // For now, analyze full file - in production, user would select range
-        aiProvider.requestAudioAnalysis (file, 0, file.getSize() / 44100.0, [this] (const juce::var& result)
+    // Keep the chooser alive until its asynchronous callback has completed.
+    fileChooser = std::make_unique<juce::FileChooser> (
+        "Select WAV file to analyze",
+        juce::File::getSpecialLocation (juce::File::userDocumentsDirectory),
+        "*.wav");
+
+    juce::Component::SafePointer<AISoundDesignPanel> safeThis (this);
+    fileChooser->launchAsync (
+        juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
+        [safeThis] (const juce::FileChooser& chooser)
         {
-            handleAnalysisResponse (result);
+            const auto file = chooser.getResult();
+
+            // Defer destruction until the FileChooser callback has returned.
+            juce::MessageManager::callAsync ([safeThis, file]()
+            {
+                if (safeThis == nullptr)
+                    return;
+
+                safeThis->fileChooser.reset();
+
+                if (!file.existsAsFile())
+                    return;
+
+                safeThis->aiProvider.requestAudioAnalysis (
+                    file, 0.0, file.getSize() / 44100.0,
+                    [safeThis] (const juce::var& result)
+                    {
+                        if (safeThis != nullptr)
+                            safeThis->handleAnalysisResponse (result);
+                    });
+            });
         });
-    }
 }
 
 void AISoundDesignPanel::handleAIResponse (const juce::var& result)
@@ -229,7 +252,9 @@ void AISoundDesignPanel::handleAIResponse (const juce::var& result)
     if (auto* obj = result.getDynamicObject())
     {
         displayGeneratedPatch (result);
-        addToHistory ("AI", obj->getProperty ("explanation", "Patch generated."));
+        auto explanation = obj->getProperty ("explanation").toString();
+        if (explanation.isEmpty()) explanation = "Patch generated.";
+        addToHistory ("AI", explanation);
     }
 }
 
@@ -238,7 +263,9 @@ void AISoundDesignPanel::handleAnalysisResponse (const juce::var& result)
     if (auto* obj = result.getDynamicObject())
     {
         displayGeneratedPatch (result);
-        addToHistory ("AI", obj->getProperty ("explanation", "Analysis complete. Patch generated from reference."));
+        auto explanation = obj->getProperty ("explanation").toString();
+        if (explanation.isEmpty()) explanation = "Analysis complete. Patch generated from reference.";
+        addToHistory ("AI", explanation);
     }
 }
 

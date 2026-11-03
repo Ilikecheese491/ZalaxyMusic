@@ -22,14 +22,12 @@ public:
 
     void setParameterID (const juce::String& newParamID);
 
-    juce::String getTooltip() const override { return tooltip; }
 
 private:
     juce::String paramID;
     ZalaxyTheme& theme;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> attachment;
 
-    juce::String tooltip;
     bool isHovering = false;
     bool isDragging = false;
     float startAngle = -juce::MathConstants<float>::halfPi * 1.25f;

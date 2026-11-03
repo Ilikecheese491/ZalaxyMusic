@@ -8,50 +8,50 @@ namespace zalaxy
 struct ColorScheme
 {
     // BASE PALETTE (Cosmic Dark - Professional)
-    static constexpr juce::Colour bgDeepest       = juce::Colour (0xFF0A0E17);
-    static constexpr juce::Colour bgDeep          = juce::Colour (0xFF111827);
-    static constexpr juce::Colour bgElevated      = juce::Colour (0xFF1A2234);
-    static constexpr juce::Colour bgHover         = juce::Colour (0xFF222D44);
-    static constexpr juce::Colour bgActive        = juce::Colour (0xFF2D3A55);
+    inline static const juce::Colour bgDeepest       = juce::Colour (0xFF0A0E17);
+    inline static const juce::Colour bgDeep          = juce::Colour (0xFF111827);
+    inline static const juce::Colour bgElevated      = juce::Colour (0xFF1A2234);
+    inline static const juce::Colour bgHover         = juce::Colour (0xFF222D44);
+    inline static const juce::Colour bgActive        = juce::Colour (0xFF2D3A55);
 
-    static constexpr juce::Colour surface         = juce::Colour (0xFF1E2A3E);
-    static constexpr juce::Colour surfaceHover    = juce::Colour (0xFF283652);
-    static constexpr juce::Colour surfaceActive   = juce::Colour (0xFF344566);
+    inline static const juce::Colour surface         = juce::Colour (0xFF1E2A3E);
+    inline static const juce::Colour surfaceHover    = juce::Colour (0xFF283652);
+    inline static const juce::Colour surfaceActive   = juce::Colour (0xFF344566);
 
-    static constexpr juce::Colour borderSubtle    = juce::Colour (0xFF2A3A55);
-    static constexpr juce::Colour borderDefault   = juce::Colour (0xFF3A4D6E);
-    static constexpr juce::Colour borderStrong    = juce::Colour (0xFF4A6080);
-    static constexpr juce::Colour borderFocus     = juce::Colour (0xFF5B8DEF);
+    inline static const juce::Colour borderSubtle    = juce::Colour (0xFF2A3A55);
+    inline static const juce::Colour borderDefault   = juce::Colour (0xFF3A4D6E);
+    inline static const juce::Colour borderStrong    = juce::Colour (0xFF4A6080);
+    inline static const juce::Colour borderFocus     = juce::Colour (0xFF5B8DEF);
 
-    static constexpr juce::Colour textPrimary     = juce::Colour (0xFFE8ECF4);
-    static constexpr juce::Colour textSecondary   = juce::Colour (0xFFB8C1D4);
-    static constexpr juce::Colour textMuted       = juce::Colour (0xFF8A95AA);
-    static constexpr juce::Colour textDisabled    = juce::Colour (0xFF5A6578);
-    static constexpr juce::Colour textInverse     = juce::Colour (0xFF0A0E17);
+    inline static const juce::Colour textPrimary     = juce::Colour (0xFFE8ECF4);
+    inline static const juce::Colour textSecondary   = juce::Colour (0xFFB8C1D4);
+    inline static const juce::Colour textMuted       = juce::Colour (0xFF8A95AA);
+    inline static const juce::Colour textDisabled    = juce::Colour (0xFF5A6578);
+    inline static const juce::Colour textInverse     = juce::Colour (0xFF0A0E17);
 
-    static constexpr juce::Colour accentPrimary   = juce::Colour (0xFF5B8DEF);
-    static constexpr juce::Colour accentPrimaryDim = juce::Colour (0xFF4A74C8);
-    static constexpr juce::Colour accentSecondary = juce::Colour (0xFF8B6FF6);
-    static constexpr juce::Colour accentWarm      = juce::Colour (0xFFF5A623);
-    static constexpr juce::Colour accentDanger    = juce::Colour (0xFFE85D5D);
-    static constexpr juce::Colour accentSuccess   = juce::Colour (0xFF4CD97A);
+    inline static const juce::Colour accentPrimary   = juce::Colour (0xFF5B8DEF);
+    inline static const juce::Colour accentPrimaryDim = juce::Colour (0xFF4A74C8);
+    inline static const juce::Colour accentSecondary = juce::Colour (0xFF8B6FF6);
+    inline static const juce::Colour accentWarm      = juce::Colour (0xFFF5A623);
+    inline static const juce::Colour accentDanger    = juce::Colour (0xFFE85D5D);
+    inline static const juce::Colour accentSuccess   = juce::Colour (0xFF4CD97A);
 
-    static constexpr juce::Colour oscColor        = juce::Colour (0xFF5B8DEF);
-    static constexpr juce::Colour filterColor     = juce::Colour (0xFFE85D5D);
-    static constexpr juce::Colour envColor        = juce::Colour (0xFF4CD97A);
-    static constexpr juce::Colour lfoColor        = juce::Colour (0xFF8B6FF6);
-    static constexpr juce::Colour modColor        = juce::Colour (0xFFF5A623);
-    static constexpr juce::Colour fxColor         = juce::Colour (0xFF22D3EE);
-    static constexpr juce::Colour masterColor     = juce::Colour (0xFFFFFFFF);
+    inline static const juce::Colour oscColor        = juce::Colour (0xFF5B8DEF);
+    inline static const juce::Colour filterColor     = juce::Colour (0xFFE85D5D);
+    inline static const juce::Colour envColor        = juce::Colour (0xFF4CD97A);
+    inline static const juce::Colour lfoColor        = juce::Colour (0xFF8B6FF6);
+    inline static const juce::Colour modColor        = juce::Colour (0xFFF5A623);
+    inline static const juce::Colour fxColor         = juce::Colour (0xFF22D3EE);
+    inline static const juce::Colour masterColor     = juce::Colour (0xFFFFFFFF);
 
-    static constexpr juce::Colour waveformColor   = juce::Colour (0xFF5B8DEF);
-    static constexpr juce::Colour spectrumColor   = juce::Colour (0xFF4CD97A);
-    static constexpr juce::Colour gridColor       = juce::Colour (0xFF1A2535);
-    static constexpr juce::Colour cursorColor     = juce::Colour (0xFF8B6FF6);
+    inline static const juce::Colour waveformColor   = juce::Colour (0xFF5B8DEF);
+    inline static const juce::Colour spectrumColor   = juce::Colour (0xFF4CD97A);
+    inline static const juce::Colour gridColor       = juce::Colour (0xFF1A2535);
+    inline static const juce::Colour cursorColor     = juce::Colour (0xFF8B6FF6);
 
-    static constexpr juce::Colour shadowUmbra     = juce::Colour (0x40000000);
-    static constexpr juce::Colour shadowPenumbra  = juce::Colour (0x20000000);
-    static constexpr juce::Colour shadowAmbient   = juce::Colour (0x10000000);
+    inline static const juce::Colour shadowUmbra     = juce::Colour (0x40000000);
+    inline static const juce::Colour shadowPenumbra  = juce::Colour (0x20000000);
+    inline static const juce::Colour shadowAmbient   = juce::Colour (0x10000000);
 
     // SPACING SYSTEM (4px base)
     static constexpr int space1 = 4;

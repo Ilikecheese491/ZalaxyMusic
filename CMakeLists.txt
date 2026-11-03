@@ -33,7 +33,7 @@ set(ZALAXY_PLUGIN_NAME "ZalaxyMusic")
 set(ZALAXY_PLUGIN_MANUFACTURER "ZalaxyMusic")
 set(ZALAXY_PLUGIN_VERSION ${PROJECT_VERSION})
 set(ZALAXY_PLUGIN_CODE "Zalx")
-set(ZALAXY_PLUGIN_CHANNEL_CONFIGS "{0, 2}")
+set(ZALAXY_PLUGIN_TARGET "ZalaxyMusic")
 
 # Include JUCE - fail fast with clear message if submodule missing
 if(NOT EXISTS "${JUCE_DIR}/CMakeLists.txt")
@@ -41,34 +41,47 @@ if(NOT EXISTS "${JUCE_DIR}/CMakeLists.txt")
 endif()
 add_subdirectory(${JUCE_DIR} EXCLUDE_FROM_ALL)
 
-# Keep the built VST3 in a predictable location for CI and local debugging.
-set_target_properties(${PROJECT_NAME} PROPERTIES
-    JUCE_COPY_PLUGIN_AFTER_BUILD ON
-)
-
 # Main plugin target
-juce_add_plugin(${PROJECT_NAME}
+juce_add_plugin(${ZALAXY_PLUGIN_TARGET}
     PRODUCT_NAME "${ZALAXY_PLUGIN_NAME}"
     COMPANY_NAME "${ZALAXY_PLUGIN_MANUFACTURER}"
-    VERSION ${ZALAXY_PLUGIN_VERSION}
+    VERSION "${ZALAXY_PLUGIN_VERSION}"
+    PLUGIN_MANUFACTURER_CODE Zaly
     PLUGIN_CODE "${ZALAXY_PLUGIN_CODE}"
-    PLUGIN_CHANNEL_CONFIGS ${ZALAXY_PLUGIN_CHANNEL_CONFIGS}
+    IS_SYNTH TRUE
+    NEEDS_MIDI_INPUT TRUE
     FORMATS VST3
-    BUNDLE_SUFFIX ""
-    VST3_DEFAULT_BUNDLE_VALUE "VST3"
-    SOURCES
-        Source/Plugins/Synth/PluginProcessor.cpp
-        Source/Plugins/Synth/PluginEditor.cpp
-    INCLUDE_DIRS
-        Source
-        Source/Core
-        Source/AI
-        Source/Analysis
-        Source/UI
-    RESOURCES
-        Resources/Presets
-        Resources/Images
-        Resources/Fonts
+    COPY_PLUGIN_AFTER_BUILD TRUE
+)
+
+if(NOT TARGET ${ZALAXY_PLUGIN_TARGET})
+    message(FATAL_ERROR
+        "JUCE did not create the expected plugin shared-code target: ${ZALAXY_PLUGIN_TARGET}")
+endif()
+
+# JUCE 9's juce_add_plugin() configures an empty shared-code target. Source
+# files and include directories must be attached explicitly with CMake target
+# commands; SOURCES/INCLUDE_DIRS/RESOURCES are not accepted arguments here.
+target_sources(${ZALAXY_PLUGIN_TARGET} PRIVATE
+    Source/Plugins/Synth/PluginProcessor.cpp
+    Source/Plugins/Synth/PluginEditor.cpp
+)
+
+target_include_directories(${ZALAXY_PLUGIN_TARGET} PRIVATE
+    Source
+    Source/Core
+    Source/AI
+    Source/Analysis
+    Source/UI
+    Source/Common
+)
+
+# This is a VST3-only first release. Do not advertise the VST3 plug-in as a
+# replacement for a previously released VST2 plug-in: no VST2 parameter-ID
+# compatibility contract exists yet. PUBLIC propagates the setting from JUCE's
+# shared-code target to the generated ZalaxyMusic_VST3 wrapper target.
+target_compile_definitions(${ZALAXY_PLUGIN_TARGET} PUBLIC
+    JUCE_VST3_CAN_REPLACE_VST2=0
 )
 
 # Core library
@@ -111,7 +124,7 @@ target_link_libraries(zalaxy_core PUBLIC
     juce::juce_gui_extra
 )
 
-target_link_libraries(${PROJECT_NAME} PRIVATE zalaxy_core)
+target_link_libraries(${ZALAXY_PLUGIN_TARGET} PRIVATE zalaxy_core)
 
 # AI module
 add_library(zalaxy_ai STATIC
@@ -137,7 +150,7 @@ target_link_libraries(zalaxy_ai PRIVATE
     juce::juce_data_structures
 )
 
-target_link_libraries(${PROJECT_NAME} PRIVATE zalaxy_ai)
+target_link_libraries(${ZALAXY_PLUGIN_TARGET} PRIVATE zalaxy_ai)
 
 # Analysis module
 add_library(zalaxy_analysis STATIC
@@ -160,7 +173,7 @@ target_link_libraries(zalaxy_analysis PRIVATE
     juce::juce_dsp
 )
 
-target_link_libraries(${PROJECT_NAME} PRIVATE zalaxy_analysis)
+target_link_libraries(${ZALAXY_PLUGIN_TARGET} PRIVATE zalaxy_analysis)
 
 # UI module
 add_library(zalaxy_ui STATIC
@@ -176,6 +189,7 @@ add_library(zalaxy_ui STATIC
     Source/UI/Panels/AISoundDesignPanel.cpp
     Source/UI/Panels/AssistantPanel.cpp
     Source/UI/Panels/SettingsPanel.cpp
+    Source/UI/Panels/AboutPanel.cpp
     Source/UI/Theme/ZalaxyTheme.cpp
     Source/UI/Components/VisualizationEngine.cpp
 )
@@ -193,7 +207,10 @@ target_link_libraries(zalaxy_ui PRIVATE
     juce::juce_gui_extra
 )
 
-target_link_libraries(${PROJECT_NAME} PRIVATE zalaxy_ui)
+target_link_libraries(${ZALAXY_PLUGIN_TARGET} PRIVATE zalaxy_ui)
+
+# PluginProcessor.h and PluginEditor.h include JUCE's generated umbrella header.
+juce_generate_juce_header(${ZALAXY_PLUGIN_TARGET})
 
 # Tests - only include if Tests directory exists with CMakeLists.txt
 if(EXISTS "${CMAKE_SOURCE_DIR}/Tests/CMakeLists.txt")
@@ -204,7 +221,7 @@ else()
 endif()
 
 # Install targets
-install(TARGETS ${PROJECT_NAME}
+install(TARGETS ${ZALAXY_PLUGIN_TARGET}
     RUNTIME DESTINATION bin
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib

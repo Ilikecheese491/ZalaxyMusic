@@ -49,6 +49,7 @@ private:
     juce::Label usageSectionLabel;
     juce::Label tokensUsedLabel;
     juce::Label tokensRemainingLabel;
+    double usageProgress = 0.0;
     juce::ProgressBar usageProgressBar;
     juce::Label limitWarningLabel;
 
@@ -70,6 +71,7 @@ private:
     void saveAPIKey();
     void testAPIKey();
     void showSetupGuide();
+    void showLicenseDialog();
     void openOpenRouterSignup();
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SettingsPanel)

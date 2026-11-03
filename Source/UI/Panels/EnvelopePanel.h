@@ -3,6 +3,7 @@
 #include "JuceModules.h"
 #include "UI/Theme/ZalaxyTheme.h"
 #include "UI/Components/ParameterSlider.h"
+#include "UI/Components/ParameterKnob.h"
 #include "Core/Parameters/ParameterManager.h"
 #include "Core/Audio/AudioEngine.h"
 

@@ -61,29 +61,40 @@ jobs:
           -DCMAKE_CXX_COMPILER=cl `
           -DJUCE_DIR="${{ github.workspace }}/JUCE" `
           -DVST3_SDK_PATH="" `
+          --trace-expand `
+          --trace-source="${{ github.workspace }}/CMakeLists.txt" `
+          --trace-source="${{ github.workspace }}/JUCE/extras/Build/CMake/JUCEUtils.cmake" `
           .
 
     - name: Build
       shell: pwsh
-      run: cmake --build build --config Release --parallel
+      run: cmake --build build --config Release -- -k 0
 
     - name: Verify VST3 output
       shell: pwsh
       run: |
-        $vst3Path = "build/bin/ZalaxyMusic.vst3/Contents/x86_64-win/ZalaxyMusic.vst3"
-        if (Test-Path $vst3Path) {
-          Write-Host "VST3 built successfully at $vst3Path!"
-        } else {
-          Write-Host "VST3 not found at expected location"
-          Get-ChildItem -Recurse build/bin
+        $bundle = Get-ChildItem -Path build -Recurse -Directory -Filter "ZalaxyMusic.vst3" | Select-Object -First 1
+        if (-not $bundle) {
+          Write-Host "No ZalaxyMusic.vst3 bundle found under build/"
+          Get-ChildItem -Recurse build -Include *.vst3 | Select-Object FullName
           exit 1
         }
+
+        $binary = Join-Path $bundle.FullName "Contents/x86_64-win/ZalaxyMusic.vst3"
+        if (-not (Test-Path $binary)) {
+          Write-Host "Bundle exists but binary is missing: $($bundle.FullName)"
+          Get-ChildItem -Recurse $bundle.FullName
+          exit 1
+        }
+
+        Write-Host "VST3 built at $($bundle.FullName)"
+        "VST3_BUNDLE=$($bundle.FullName)" >> $env:GITHUB_ENV
 
     - name: Upload VST3 artifact
       uses: actions/upload-artifact@v4
       with:
         name: ZalaxyMusic-Windows-VST3
-        path: build/bin/ZalaxyMusic.vst3/
+        path: ${{ env.VST3_BUNDLE }}
         retention-days: 30
 
   build-test:
@@ -116,11 +127,14 @@ jobs:
           -DCMAKE_CXX_COMPILER=cl `
           -DJUCE_DIR="${{ github.workspace }}/JUCE" `
           -DVST3_SDK_PATH="" `
+          --trace-expand `
+          --trace-source="${{ github.workspace }}/CMakeLists.txt" `
+          --trace-source="${{ github.workspace }}/JUCE/extras/Build/CMake/JUCEUtils.cmake" `
           .
 
     - name: Build Tests
       shell: pwsh
-      run: cmake --build build --config Debug --parallel
+      run: cmake --build build --config Debug -- -k 0
 
     - name: Run Tests
       shell: pwsh

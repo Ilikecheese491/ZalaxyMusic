@@ -1,4 +1,5 @@
 #include "AssistantPanel.h"
+#include "AI/Providers/AIProvider.h"
 
 namespace zalaxy
 {
@@ -33,7 +34,7 @@ AssistantPanel::AssistantPanel (class AIProvider& ai, ParameterManager& params)
     inputField = std::make_unique<juce::TextEditor>();
     inputField->setMultiLine (false);
     inputField->setReturnKeyStartsNewLine (false);
-    inputField->setPlaceholderText ("Ask about mixing, mastering, sound design...");
+    inputField->setTextToShowWhenEmpty ("Ask about mixing, mastering, sound design...", theme.getColor (ZalaxyTheme::ColorId::TextMuted));
     inputField->setFont (theme.getFont ("body"));
     inputField->setColour (juce::TextEditor::backgroundColourId, theme.getColor (ZalaxyTheme::ColorId::Surface));
     inputField->setColour (juce::TextEditor::textColourId, theme.getColor (ZalaxyTheme::ColorId::TextPrimary));
@@ -78,7 +79,10 @@ void AssistantPanel::paint (juce::Graphics& g)
     g.setColour (theme.getColor (ZalaxyTheme::ColorId::BorderSubtle));
     g.drawRoundedRectangle (bounds, theme.getRadius ("medium"), 1.0f);
     g.setColour (theme.getColor (ZalaxyTheme::ColorId::AccentSecondary));
-    g.fillRect (bounds.getX() + 8, bounds.getY() + 2, bounds.getWidth() - 16, 2);
+    g.fillRect (juce::Rectangle<float> (bounds.getX() + 8.0f,
+                                    bounds.getY() + 2.0f,
+                                    bounds.getWidth() - 16.0f,
+                                    2.0f));
 }
 
 void AssistantPanel::resized()
@@ -156,7 +160,8 @@ void AssistantPanel::sendMessage()
 
         if (auto* obj = result.getDynamicObject())
         {
-            juce::String response = obj->getProperty ("response", "I couldn't generate a response.");
+            juce::String response = obj->getProperty ("response").toString();
+            if (response.isEmpty()) response = "I couldn't generate a response.";
             addMessage ("Assistant", response);
         }
     });

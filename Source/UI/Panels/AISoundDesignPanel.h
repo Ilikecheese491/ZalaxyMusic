@@ -34,6 +34,7 @@ private:
     ZalaxyTheme theme;
 
     std::unique_ptr<juce::TextEditor> promptInput;
+    std::unique_ptr<juce::FileChooser> fileChooser;
     std::unique_ptr<juce::TextButton> generateButton;
     std::unique_ptr<juce::TextButton> analyzeButton;
     std::unique_ptr<juce::TextButton> variationsButton;
