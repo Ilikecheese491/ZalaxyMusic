@@ -25,8 +25,8 @@ jobs:
     - name: Verify JUCE submodule
       run: |
         cd JUCE
-        git describe --tags
-        git log --oneline -1
+        echo "JUCE commit: $(git rev-parse --short HEAD)"
+        git describe --tags 2>/dev/null || echo "No tag at this commit (detached HEAD)"
         ls modules
 
     - name: Setup CMake
@@ -34,15 +34,18 @@ jobs:
       with:
         cmake-version: '3.28'
 
-    - name: Setup Ninja
-      uses: seanmiddleditch/gha-setup-ninja@v5
+    - name: Check Ninja availability
+      run: |
+        ninja --version
+        cmake --version
+      shell: pwsh
 
     - name: Configure CMake
       run: |
-        cmake -B build -G Ninja \
-          -DCMAKE_BUILD_TYPE=Release \
-          -DJUCE_DIR=${{ github.workspace }}/JUCE \
-          -DVST3_SDK_PATH="" \
+        cmake -B build -G Ninja `
+          -DCMAKE_BUILD_TYPE=Release `
+          -DJUCE_DIR="${{ github.workspace }}/JUCE" `
+          -DVST3_SDK_PATH="" `
           .
       shell: pwsh
 
@@ -84,15 +87,12 @@ jobs:
       with:
         cmake-version: '3.28'
 
-    - name: Setup Ninja
-      uses: seanmiddleditch/gha-setup-ninja@v5
-
     - name: Configure CMake with Tests
       run: |
-        cmake -B build -G Ninja \
-          -DCMAKE_BUILD_TYPE=Debug \
-          -DJUCE_DIR=${{ github.workspace }}/JUCE \
-          -DVST3_SDK_PATH="" \
+        cmake -B build -G Ninja `
+          -DCMAKE_BUILD_TYPE=Debug `
+          -DJUCE_DIR="${{ github.workspace }}/JUCE" `
+          -DVST3_SDK_PATH="" `
           .
       shell: pwsh
 
