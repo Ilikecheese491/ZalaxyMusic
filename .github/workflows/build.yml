@@ -28,6 +28,7 @@ jobs:
         cd JUCE
         $commit = git rev-parse --short HEAD
         echo "JUCE commit: $commit"
+        # git describe --tags returns non-zero if no tag - don't fail the step
         $tag = git describe --tags 2>$null
         if ($LASTEXITCODE -eq 0) { echo "JUCE tag: $tag" }
         else { echo "No tag at this commit (detached HEAD)" }

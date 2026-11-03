@@ -35,7 +35,10 @@ set(ZALAXY_PLUGIN_VERSION ${PROJECT_VERSION})
 set(ZALAXY_PLUGIN_CODE "Zalx")
 set(ZALAXY_PLUGIN_CHANNEL_CONFIGS "{0, 2}")
 
-# Include JUCE
+# Include JUCE - fail fast with clear message if submodule missing
+if(NOT EXISTS "${JUCE_DIR}/CMakeLists.txt")
+    message(FATAL_ERROR "JUCE submodule not found at ${JUCE_DIR}. Run: git submodule update --init --recursive")
+endif()
 add_subdirectory(${JUCE_DIR} EXCLUDE_FROM_ALL)
 
 # Main plugin target
@@ -178,9 +181,13 @@ target_link_libraries(zalaxy_ui PRIVATE
 
 target_link_libraries(${PROJECT_NAME} PRIVATE zalaxy_ui)
 
-# Tests
-enable_testing()
-add_subdirectory(Tests)
+# Tests - only include if Tests directory exists with CMakeLists.txt
+if(EXISTS "${CMAKE_SOURCE_DIR}/Tests/CMakeLists.txt")
+    enable_testing()
+    add_subdirectory(Tests)
+else()
+    message(STATUS "Tests directory not found; skipping tests")
+endif()
 
 # Install targets
 install(TARGETS ${PROJECT_NAME}
