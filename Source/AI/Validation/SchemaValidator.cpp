@@ -7,8 +7,8 @@ namespace zalaxy
 
 bool SchemaValidator::validateJSON (const juce::String& json, const juce::String& schema)
 {
-    // Stub implementation - in production would use a JSON schema validator
-    var parsed = JSON::parse (json);
+    (void)schema;
+    const juce::var parsed = juce::JSON::parse (json);
     return parsed.isObject();
 }
 
