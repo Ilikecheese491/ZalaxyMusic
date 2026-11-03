@@ -243,7 +243,7 @@ void CloudAIProvider::testConnection (std::function<void(bool, const juce::Strin
     const juce::String testPrompt = "Test connection - reply with 'OK'";
     const juce::String body = buildRequestBody (testPrompt, "You are a test endpoint. Reply only with 'OK'.");
 
-    sendRequest (currentProviderConfig.baseURL, body, [callback] (const juce::var& response)
+    sendRequest (currentProviderConfig.baseURL, body, [this, callback] (const juce::var& response)
     {
         if (validateResponse (response))
             callback (true, "Connection successful");
@@ -254,36 +254,39 @@ void CloudAIProvider::testConnection (std::function<void(bool, const juce::Strin
 
 juce::String CloudAIProvider::buildRequestBody (const juce::String& prompt, const juce::String& systemPrompt) const
 {
-    juce::DynamicObject request;
-    request.setProperty ("model", currentProviderConfig.defaultModel);
-    request.setProperty ("max_tokens", currentProviderConfig.maxTokens);
-    request.setProperty ("temperature", 0.7);
+    juce::DynamicObject::Ptr request = new juce::DynamicObject();
+    request->setProperty ("model", currentProviderConfig.defaultModel);
+    request->setProperty ("max_tokens", currentProviderConfig.maxTokens);
+    request->setProperty ("temperature", 0.7);
 
     juce::Array<juce::var> messages;
 
-    juce::DynamicObject sysMsg;
-    sysMsg.setProperty ("role", "system");
-    sysMsg.setProperty ("content", systemPrompt);
-    messages.add (juce::var (sysMsg));
+    juce::DynamicObject::Ptr sysMsg = new juce::DynamicObject();
+    sysMsg->setProperty ("role", "system");
+    sysMsg->setProperty ("content", systemPrompt);
+    messages.add (juce::var (sysMsg.get()));
 
-    juce::DynamicObject userMsg;
-    userMsg.setProperty ("role", "user");
-    userMsg.setProperty ("content", prompt);
-    messages.add (juce::var (userMsg));
+    juce::DynamicObject::Ptr userMsg = new juce::DynamicObject();
+    userMsg->setProperty ("role", "user");
+    userMsg->setProperty ("content", prompt);
+    messages.add (juce::var (userMsg.get()));
 
-    request.setProperty ("messages", messages);
+    request->setProperty ("messages", messages);
 
-    return juce::JSON::toString (request);
+    return juce::JSON::toString (juce::var (request.get()));
 }
 
 void CloudAIProvider::sendRequest (const juce::String& endpoint, const juce::String& body, std::function<void(const juce::var&)> callback)
 {
     juce::URL url (endpoint);
 
-    // This older-compatible version avoids the newer JUCE API methods
-    // that your build doesn't have. If you want headers/timeouts, upgrade JUCE.
-    auto* stream = url.withPOSTData (body)
-                      .createInputStream();
+    juce::StringPairArray headers;
+    headers.set ("Content-Type", "application/json");
+
+    if (hasValidAPIKey())
+        headers.set ("Authorization", "Bearer " + getAPIKey (currentProviderName));
+
+    auto stream = url.withPOSTData (body).createInputStream (headers);
 
     if (stream == nullptr)
     {
@@ -293,7 +296,7 @@ void CloudAIProvider::sendRequest (const juce::String& endpoint, const juce::Str
         return;
     }
 
-    juce::Thread::launch ([stream = std::unique_ptr<juce::InputStream> (stream), callback]() mutable
+    juce::Thread::launch ([stream = std::move (stream), callback]() mutable
     {
         const juce::String responseText = stream->readEntireStreamAsString();
         const juce::var parsed = juce::JSON::parse (responseText);
