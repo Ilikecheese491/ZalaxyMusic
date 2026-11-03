@@ -51,19 +51,23 @@ juce_add_plugin(${PROJECT_NAME}
     FORMATS VST3
     BUNDLE_SUFFIX ""
     VST3_DEFAULT_BUNDLE_VALUE "VST3"
-    SOURCES
-        Source/Plugins/Synth/PluginProcessor.cpp
-        Source/Plugins/Synth/PluginEditor.cpp
-    INCLUDE_DIRS
-        Source
-        Source/Core
-        Source/AI
-        Source/Analysis
-        Source/UI
-    RESOURCES
-        Resources/Presets
-        Resources/Images
-        Resources/Fonts
+)
+
+# JUCE 9's juce_add_plugin() configures an empty shared-code target. Source
+# files and include directories must be attached explicitly with CMake target
+# commands; SOURCES/INCLUDE_DIRS/RESOURCES are not accepted arguments here.
+target_sources(${PROJECT_NAME} PRIVATE
+    Source/Plugins/Synth/PluginProcessor.cpp
+    Source/Plugins/Synth/PluginEditor.cpp
+)
+
+target_include_directories(${PROJECT_NAME} PRIVATE
+    Source
+    Source/Core
+    Source/AI
+    Source/Analysis
+    Source/UI
+    Source/Common
 )
 
 # This is a VST3-only first release. Do not advertise the VST3 plug-in as a
