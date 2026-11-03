@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Common/JuceModules.h"
+#include "JuceModules.h"
 #include "UI/Theme/ZalaxyTheme.h"
 #include "Core/AI/CloudAIProvider.h"
 #include "Core/Licensing/SubscriptionManager.h"

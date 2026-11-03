@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Common/JuceModules.h"
+#include "JuceModules.h"
 #include "Core/Parameters/ParameterManager.h"
 #include "Core/DSP/Oscillator.h"
 #include "Core/DSP/Filter.h"
