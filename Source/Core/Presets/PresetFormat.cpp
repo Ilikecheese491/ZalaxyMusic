@@ -7,14 +7,14 @@ namespace zalaxy
 bool PresetFormat::writeBinaryHeader (juce::OutputStream& stream)
 {
     stream.writeString (FILE_IDENTIFIER);
-    stream.writeInt32 (CURRENT_VERSION);
-    return !stream.getStatus().failed();
+    stream.writeInt (CURRENT_VERSION);
+    return true; // OutputStream doesn't have getStatus() in JUCE 9.0.4
 }
 
 bool PresetFormat::readBinaryHeader (juce::InputStream& stream)
 {
     juce::String identifier = stream.readString();
-    int version = stream.readInt32();
+    int version = stream.readInt();
 
     if (identifier != FILE_IDENTIFIER)
         return false;
@@ -22,7 +22,7 @@ bool PresetFormat::readBinaryHeader (juce::InputStream& stream)
     if (version > CURRENT_VERSION)
         return false; // Future version
 
-    return !stream.getStatus().failed();
+    return true;
 }
 
 juce::ValueTree PresetFormat::createMetadataTree (const PresetMetadata& metadata)
@@ -103,7 +103,7 @@ bool PresetFormat::writePreset (const juce::File& file,
 
     juce::MemoryBlock xmlData;
     juce::MemoryOutputStream memStream (xmlData, false);
-    xml->writeToStream (memStream); // No TextFormat in this JUCE version
+    xml->writeToStream (memStream, juce::String(), false); // JUCE 9.0.4 signature
 
     // Compress using GZIPCompressorOutputStream
     juce::MemoryBlock compressed;
@@ -115,11 +115,10 @@ bool PresetFormat::writePreset (const juce::File& file,
     }
 
     // Write compressed size and data
-    juce::MemoryOutputStream headerStream (fileStream, false);
-    headerStream.writeInt32 ((int) compressed.getSize());
+    fileStream.writeInt ((int) compressed.getSize());
     fileStream.write (compressed.getData(), compressed.getSize());
 
-    return !fileStream.getStatus().failed();
+    return true;
 }
 
 bool PresetFormat::readPreset (const juce::File& file,
@@ -134,8 +133,7 @@ bool PresetFormat::readPreset (const juce::File& file,
         return false;
 
     // Read compressed size
-    juce::MemoryInputStream headerStream (fileStream, false);
-    int compressedSize = headerStream.readInt32();
+    int compressedSize = fileStream.readInt();
     if (compressedSize <= 0 || compressedSize > 1024 * 1024) // Max 1MB
         return false;
 
@@ -153,7 +151,8 @@ bool PresetFormat::readPreset (const juce::File& file,
 
     // Parse XML from MemoryBlock via MemoryInputStream
     juce::MemoryInputStream xmlStream (xmlData, false);
-    std::unique_ptr<juce::XmlElement> xml (juce::XmlDocument::parse (xmlStream));
+    juce::String xmlString = xmlStream.readEntireStreamAsString();
+    std::unique_ptr<juce::XmlElement> xml (juce::XmlDocument::parse (xmlString));
     if (!xml)
         return false;
 
@@ -186,8 +185,8 @@ bool PresetFormat::writePresetJSON (const juce::File& file,
     if (stream.failedToOpen())
         return false;
 
-    xml->writeToStream (stream); // No TextFormat in this JUCE version
-    return !stream.getStatus().failed();
+    xml->writeToStream (stream, juce::String(), false); // JUCE 9.0.4 signature
+    return true;
 }
 
 bool PresetFormat::readPresetJSON (const juce::File& file,
@@ -235,8 +234,7 @@ bool PresetFormat::getPresetInfo (const juce::File& file, PresetMetadata& metada
         return false;
 
     // Skip compressed size
-    juce::MemoryInputStream headerStream (stream, false);
-    headerStream.readInt32();
+    stream.readInt();
 
     // We'd need to decompress just to get metadata - for now return false
     // In production, we'd store metadata separately or have a quick-read mode

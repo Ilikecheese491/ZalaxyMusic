@@ -35,7 +35,7 @@ void PresetManager::loadPreset (int index)
 
     const auto& entry = presets[index];
     juce::ValueTree state;
-    PresetFormat::PresetMetadata metadata;
+    PresetMetadata metadata;
 
     if (PresetFormat::readPreset (entry.file, state, metadata))
     {
@@ -117,7 +117,7 @@ void PresetManager::renamePreset (int index, const juce::String& newName)
         return; // Can't rename factory presets
 
     juce::File newFile = entry.file.getSiblingFile (newName + PresetFormat::FILE_EXTENSION);
-    if (entry.file.moveTo (newFile))
+    if (entry.file.moveFileTo (newFile))
     {
         entry.name = newName;
         entry.file = newFile;
@@ -168,7 +168,7 @@ bool PresetManager::importPreset (const juce::File& file)
         return false;
 
     juce::ValueTree state;
-    PresetFormat::PresetMetadata metadata;
+    PresetMetadata metadata;
 
     if (PresetFormat::readPreset (file, state, metadata))
     {
@@ -184,7 +184,7 @@ bool PresetManager::importPreset (const juce::File& file)
             destFile = destDir.getChildFile (metadata.name + PresetFormat::FILE_EXTENSION);
         }
 
-        if (file.copyTo (destFile))
+        if (file.copyFileTo (destFile))
         {
             PresetEntry entry;
             entry.name = metadata.name;
@@ -270,7 +270,7 @@ void PresetManager::scanPresetDirectories()
             entry.isFactory = true;
             entry.name = file.getFileNameWithoutExtension();
 
-            PresetFormat::PresetMetadata metadata;
+            PresetMetadata metadata;
             if (PresetFormat::getPresetInfo (file, metadata))
             {
                 entry.metadata = metadata;
@@ -299,7 +299,7 @@ void PresetManager::scanPresetDirectories()
         entry.isFactory = false;
         entry.name = file.getFileNameWithoutExtension();
 
-        PresetFormat::PresetMetadata metadata;
+        PresetMetadata metadata;
         if (PresetFormat::getPresetInfo (file, metadata))
         {
             entry.metadata = metadata;

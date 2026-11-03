@@ -124,7 +124,7 @@ int SubscriptionManager::getTrialDaysRemaining() const
     int64_t now = getCurrentTimeMs();
     int64_t trialEndTime = trialStartTime + (int64_t)trialDays * 24 * 60 * 60 * 1000;
     int64_t remainingMs = trialEndTime - now;
-    return (int)juce::jmax (0, remainingMs / (24 * 60 * 60 * 1000));
+    return (int)juce::jmax ((int64_t)0, remainingMs / (24 * 60 * 60 * 1000));
 }
 
 bool SubscriptionManager::isExpired() const
@@ -179,7 +179,7 @@ void SubscriptionManager::save()
     juce::FileOutputStream stream (file);
     if (stream.openedOk())
     {
-        juce::JSON::writeToStream (stream, obj);
+        juce::JSON::writeToStream (stream, juce::var (obj), false, 0);
     }
 }
 
@@ -197,12 +197,12 @@ void SubscriptionManager::load()
     if (!obj)
         return;
 
-    currentTier = (LicenseTier)obj->getProperty ("tier", 0);
-    licenseKey = obj->getProperty ("licenseKey", "").toString();
-    userEmail = obj->getProperty ("userEmail", "").toString();
-    trialStartTime = obj->getProperty ("trialStartTime", (int64_t)0);
-    licenseExpiryTime = obj->getProperty ("licenseExpiryTime", (int64_t)0);
-    trialDays = obj->getProperty ("trialDays", 14);
+    currentTier = (LicenseTier)obj->getProperty ("tier");
+    licenseKey = obj->getProperty ("licenseKey").toString();
+    userEmail = obj->getProperty ("userEmail").toString();
+    trialStartTime = obj->getProperty ("trialStartTime");
+    licenseExpiryTime = obj->getProperty ("licenseExpiryTime");
+    trialDays = (int)obj->getProperty ("trialDays");
 
     if (!licenseKey.isEmpty())
     {
@@ -235,7 +235,7 @@ juce::String SubscriptionManager::generateLicenseKey (LicenseTier tier, const ju
 {
     int64_t expiry = getCurrentTimeMs() + (int64_t)validityDays * 24 * 60 * 60 * 1000;
     juce::String payload = juce::String ((int)tier) + "|" + userEmail + "|" + juce::String (expiry);
-    juce::String encoded = payload.toBase64Encoding();
+    juce::String encoded = juce::Base64::toBase64 (payload.toUTF8(), payload.length());
     return "ZALX-" + encoded;
 }
 

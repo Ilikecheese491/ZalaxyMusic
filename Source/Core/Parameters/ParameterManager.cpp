@@ -66,12 +66,13 @@ void ParameterManager::saveState (juce::MemoryOutputStream& stream)
     auto state = apvts.copyState();
     std::unique_ptr<juce::XmlElement> xml (state.createXml());
     if (xml)
-        xml->writeToStream (stream);
+        xml->writeToStream (stream, juce::String(), false); // JUCE 9.0.4 signature
 }
 
 void ParameterManager::loadState (juce::MemoryInputStream& stream)
 {
-    std::unique_ptr<juce::XmlElement> xml (juce::XmlDocument::parse (stream));
+    juce::String xmlString = stream.readEntireStreamAsString();
+    std::unique_ptr<juce::XmlElement> xml (juce::XmlDocument::parse (xmlString));
     if (xml)
     {
         apvts.replaceState (juce::ValueTree::fromXml (*xml));
